@@ -1,0 +1,76 @@
+commit 7985ce0b5aa702060ba0fe574e8e6a0f3301bff0
+Author: meganetwork-00- <mail.com>
+Date:   Tue Jul 24 23:11:51 2012 +0900
+
+    2nd commit
+
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index 9144fad..72ec926 100644
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -12,7 +12,7 @@
+         android:label="@string/app_name"
+         android:theme="@style/AppTheme" >
+         <activity
+-            android:name=".MainActivity"
++            android:name="jp.gr.uchiwa.blackout.MainActivity"
+             android:label="@string/title_activity_main" >
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+diff --git a/bin/AndroidManifest.xml b/bin/AndroidManifest.xml
+index 9144fad..72ec926 100644
+--- a/bin/AndroidManifest.xml
++++ b/bin/AndroidManifest.xml
+@@ -12,7 +12,7 @@
+         android:label="@string/app_name"
+         android:theme="@style/AppTheme" >
+         <activity
+-            android:name=".MainActivity"
++            android:name="jp.gr.uchiwa.blackout.MainActivity"
+             android:label="@string/title_activity_main" >
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+diff --git a/bin/classes/jp/gr/uchiwa/blackout/MainActivity.class b/bin/classes/jp/gr/uchiwa/blackout/MainActivity.class
+new file mode 100644
+index 0000000..f182245
+Binary files /dev/null and b/bin/classes/jp/gr/uchiwa/blackout/MainActivity.class differ
+diff --git a/bin/jarlist.cache b/bin/jarlist.cache
+new file mode 100644
+index 0000000..1b5ec3f
+--- /dev/null
++++ b/bin/jarlist.cache
+@@ -0,0 +1,3 @@
++# cache for current jar dependecy. DO NOT EDIT.
++# format is <lastModified> <length> <SHA-1> <path>
++# Encoding is UTF-8
+diff --git a/src/jp/gr/uchiwa/blackout/MainActivity.java b/src/jp/gr/uchiwa/blackout/MainActivity.java
+new file mode 100644
+index 0000000..f0bca56
+--- /dev/null
++++ b/src/jp/gr/uchiwa/blackout/MainActivity.java
+@@ -0,0 +1,25 @@
++package jp.gr.uchiwa.blackout;
++
++import jp.gr.uchiwa.brackout.R;
++import android.os.Bundle;
++import android.app.Activity;
++import android.view.Menu;
++import android.view.MenuItem;
++import android.support.v4.app.NavUtils;
++
++public class MainActivity extends Activity {
++
++    @Override
++    public void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.activity_main);
++    }
++
++    @Override
++    public boolean onCreateOptionsMenu(Menu menu) {
++        getMenuInflater().inflate(R.menu.activity_main, menu);
++        return true;
++    }
++
++    
++}
