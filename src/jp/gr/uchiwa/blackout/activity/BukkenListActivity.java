@@ -1,6 +1,6 @@
 package jp.gr.uchiwa.blackout.activity;
 
-import jp.gr.uchiwa.brackout.R;
+import jp.gr.uchiwa.blackout.R;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
