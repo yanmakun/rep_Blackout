@@ -46,6 +46,8 @@ public class BukkenListActivity extends Activity {
 		});
 		moveToBlackoutSchedule.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+				Intent intent = new Intent(BukkenListActivity.this, BlackoutScheduleActivity.class);
+				startActivity(intent);
 			}
 		});
 	}
