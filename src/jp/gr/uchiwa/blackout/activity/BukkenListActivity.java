@@ -2,6 +2,7 @@ package jp.gr.uchiwa.blackout.activity;
 
 import jp.gr.uchiwa.blackout.R;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -39,10 +40,14 @@ public class BukkenListActivity extends Activity {
 	private void addEventHandler() {
 		moveToBukkenEdit.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+				Intent intent = new Intent(BukkenListActivity.this, BukkenEditActivity.class);
+				startActivity(intent);
 			}
 		});
 		moveToBlackoutSchedule.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+				Intent intent = new Intent(BukkenListActivity.this, BlackoutScheduleActivity.class);
+				startActivity(intent);
 			}
 		});
 	}
