@@ -30,7 +30,6 @@ import org.apache.http.util.EntityUtils;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 /**
  * @author jabaraster
@@ -148,7 +147,6 @@ public class ScheduleService {
             insertScheduleLastModified(pDb, pCsvResponse.lastModified);
 
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                Log.d(ScheduleService.class.getSimpleName(), line);
                 final String[] tokens = line.substring(1, line.length() - 1).split("\",\""); //$NON-NLS-1$
                 final String doDate = tokens[0];
                 final String startTime = tokens[1];
