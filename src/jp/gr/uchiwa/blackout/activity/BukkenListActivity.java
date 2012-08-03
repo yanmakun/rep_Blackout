@@ -1,8 +1,10 @@
 package jp.gr.uchiwa.blackout.activity;
 
 import jp.gr.uchiwa.blackout.R;
+import jp.gr.uchiwa.blackout.service.BukkenListService;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -22,7 +24,7 @@ public class BukkenListActivity extends Activity {
 		findView();
 		customizeView();
 		addEventHandler();
-		bindData();
+//		bindData();
 	}
 
 	private void findView() {
@@ -53,6 +55,7 @@ public class BukkenListActivity extends Activity {
 	}
 
 	private void bindData() {
-		
+		BukkenListService service = new BukkenListService(this);
+		Cursor cursor = service.getBukkenList();
 	}
 }
