@@ -5,6 +5,7 @@ import java.util.List;
 
 import jp.gr.uchiwa.blackout.service.Db;
 import jp.gr.uchiwa.blackout.service.ScheduleService;
+import jp.gr.uchiwa.blackout.service.ScheduleService.IRefreshTask;
 import android.app.ListActivity;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -25,10 +26,7 @@ public class MainActivity extends ListActivity {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final ArrayAdapter<String> ada = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new String[] { "スケジュール取得中..." }); //$NON-NLS-1$
-        setListAdapter(ada);
-
-        new ScheduleService(this).refreshInBackground(new Runnable() {
+        final IRefreshTask task = new ScheduleService(this).refreshInBackground(new Runnable() {
             @SuppressWarnings("synthetic-access")
             public void run() {
                 MainActivity.this.handler.post(new Runnable() {
@@ -38,6 +36,11 @@ public class MainActivity extends ListActivity {
                 });
             }
         });
+
+        final ArrayAdapter<String> ada = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new String[] { //
+                "スケジュール取得中..." + (task.isFirst() ? "(初回起動!)" : "") //  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+                });
+        setListAdapter(ada);
     }
 
     private void loadDbData() {
@@ -51,6 +54,7 @@ public class MainActivity extends ListActivity {
             final int priority = Db.getInteger(cursor, Db.Schedule.COL_PRIORITY);
             rows.add(doDate + ", " + subGroup + ", " + priority); //$NON-NLS-1$//$NON-NLS-2$
         }
+        db.getDatabase().close();
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
                 rows.toArray(new String[rows.size()]));
         setListAdapter(adapter);
