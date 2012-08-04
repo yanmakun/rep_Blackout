@@ -32,7 +32,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 /**
  * @author jabaraster
@@ -107,10 +106,8 @@ public class ScheduleService {
 
                 public Response handleResponse(final HttpResponse pResponse) throws IOException {
                     if (pResponse.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_MODIFIED) {
-                        Log.d(ScheduleService.class.getSimpleName(), "サーバ側に変更なし.");
                         return null;
                     }
-                    Log.d(ScheduleService.class.getSimpleName(), "サーバ側に変更あり！DBを更新します！");
 
                     final String content = EntityUtils.toString(pResponse.getEntity(), "UTF-8"); //$NON-NLS-1$
                     @SuppressWarnings("synthetic-access")
