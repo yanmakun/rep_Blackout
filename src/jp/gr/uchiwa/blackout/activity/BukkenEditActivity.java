@@ -1,7 +1,9 @@
 package jp.gr.uchiwa.blackout.activity;
 
 import jp.gr.uchiwa.blackout.R;
+import jp.gr.uchiwa.blackout.service.BukkenEditService;
 import android.app.Activity;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -18,9 +20,10 @@ public class BukkenEditActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_bukken_edit);
 		findView();
 		addEventHandler();
-		bindData();
+//		bindData();
 	}
 
 	private void findView() {
@@ -39,5 +42,7 @@ public class BukkenEditActivity extends Activity {
 	}
 
 	private void bindData() {
+		BukkenEditService service = new BukkenEditService(this);
+		Cursor cursor = service.getBukken(0);
 	}
 }

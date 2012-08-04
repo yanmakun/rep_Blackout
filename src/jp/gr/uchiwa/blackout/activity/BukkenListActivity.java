@@ -1,7 +1,10 @@
 package jp.gr.uchiwa.blackout.activity;
 
 import jp.gr.uchiwa.blackout.R;
+import jp.gr.uchiwa.blackout.service.BukkenListService;
 import android.app.Activity;
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -17,10 +20,11 @@ public class BukkenListActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_bukken_list);
 		findView();
 		customizeView();
 		addEventHandler();
-		bindData();
+//		bindData();
 	}
 
 	private void findView() {
@@ -38,15 +42,20 @@ public class BukkenListActivity extends Activity {
 	private void addEventHandler() {
 		moveToBukkenEdit.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+				Intent intent = new Intent(BukkenListActivity.this, BukkenEditActivity.class);
+				startActivity(intent);
 			}
 		});
 		moveToBlackoutSchedule.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+				Intent intent = new Intent(BukkenListActivity.this, BlackoutScheduleActivity.class);
+				startActivity(intent);
 			}
 		});
 	}
 
 	private void bindData() {
-		
+		BukkenListService service = new BukkenListService(this);
+		Cursor cursor = service.getBukkenList();
 	}
 }

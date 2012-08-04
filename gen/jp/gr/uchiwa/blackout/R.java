@@ -20,30 +20,33 @@ public final class R {
         public static final int ic_launcher=0x7f020001;
     }
     public static final class id {
-        public static final int bukkenList=0x7f080010;
-        public static final int bukkenName=0x7f080002;
-        public static final int bukkenUpdate=0x7f08000c;
-        public static final int contactAddress=0x7f080008;
-        public static final int contactPerson=0x7f08000b;
-        public static final int mainTitle=0x7f08000d;
-        public static final int menu_settings=0x7f080012;
-        public static final int moveToBlackoutSchedule=0x7f080011;
-        public static final int moveToBukkenEdit=0x7f08000f;
-        public static final int subGroup=0x7f080005;
-        public static final int subTitle=0x7f08000e;
-        public static final int tableRow1=0x7f080000;
-        public static final int tableRow2=0x7f080003;
-        public static final int tableRow3=0x7f080006;
-        public static final int tableRow4=0x7f080009;
-        public static final int textView1=0x7f080001;
-        public static final int textView2=0x7f080004;
-        public static final int textView3=0x7f080007;
-        public static final int textView4=0x7f08000a;
+        public static final int bukkenList=0x7f080012;
+        public static final int bukkenName=0x7f080004;
+        public static final int bukkenUpdate=0x7f08000e;
+        public static final int contactAddress=0x7f08000a;
+        public static final int contactPerson=0x7f08000d;
+        public static final int datePicker1=0x7f080000;
+        public static final int expandableListView1=0x7f080001;
+        public static final int mainTitle=0x7f08000f;
+        public static final int menu_settings=0x7f080014;
+        public static final int moveToBlackoutSchedule=0x7f080013;
+        public static final int moveToBukkenEdit=0x7f080011;
+        public static final int subGroup=0x7f080007;
+        public static final int subTitle=0x7f080010;
+        public static final int tableRow1=0x7f080002;
+        public static final int tableRow2=0x7f080005;
+        public static final int tableRow3=0x7f080008;
+        public static final int tableRow4=0x7f08000b;
+        public static final int textView1=0x7f080003;
+        public static final int textView2=0x7f080006;
+        public static final int textView3=0x7f080009;
+        public static final int textView4=0x7f08000c;
     }
     public static final class layout {
-        public static final int activity_bukken_edit=0x7f030000;
-        public static final int activity_bukken_list=0x7f030001;
-        public static final int activity_main=0x7f030002;
+        public static final int activity_blackout_schedule=0x7f030000;
+        public static final int activity_bukken_edit=0x7f030001;
+        public static final int activity_bukken_list=0x7f030002;
+        public static final int activity_main=0x7f030003;
     }
     public static final class menu {
         public static final int activity_main=0x7f070000;
