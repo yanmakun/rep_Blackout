@@ -48,7 +48,8 @@ public class MainActivity extends ListActivity {
         final Cursor cursor = db.getDatabase().query(Db.Schedule.TABLE_NAME, Db.Schedule.INSTANCE.getAllColumnNames(), null, null, null, null, null);
 
         final List<String> rows = new ArrayList<String>();
-        for (final Cursor _ : Db.toIterable(cursor)) {
+        for (@SuppressWarnings("unused")
+        final Cursor _ : Db.toIterable(cursor)) {
             final String doDate = Db.getString(cursor, Db.Schedule.COL_DO_DATE);
             final String subGroup = Db.getString(cursor, Db.Schedule.COL_SUB_GROUP);
             final int priority = Db.getInteger(cursor, Db.Schedule.COL_PRIORITY);
