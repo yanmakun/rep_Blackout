@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import jp.gr.uchiwa.blackout.service.Db.Bukken;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -22,14 +24,18 @@ public class BukkenListService {
 		List<HashMap<String, String>> dataList = null;
 		try {
 			sqlite.beginTransaction();
-			Cursor cursor = sqlite.query
+			final Cursor cursor = sqlite.query
 				(
-					"",
-					new String[]{},
+					Bukken.TABLE_NAME,
+					new String[]{
+							Bukken.COL_NO.getName(),
+							Bukken.COL_BUKKEN_NAME.getName(),
+							Bukken.COL_SUB_GROUP_NAME.getName()
+					},
 					null,
 					new String[]{},
 					null,
-					"no desc",
+					Bukken.COL_NO.getName().concat(" desc"),
 					null
 				);
 			dataList = convertCursorToList(cursor);

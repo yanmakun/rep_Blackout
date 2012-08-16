@@ -33,6 +33,22 @@
             android:name=".activity.BukkenEditActivity"
             android:label="@string/app_name" >
         </activity>
-    </application>
+        
+        <receiver
+            android:name=".widget.BlackoutScheduleWidget" 
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" 
+                android:resource="@xml/blackoutschedulewidget" />
+		</receiver>
+
+        <service android:name=".service.BlackoutScheduleWidgetService">
+            <intent-filter>
+                <action android:name="BUTTON_CLICK_ACTION" />
+            </intent-filter>
+        </service>        
+	</application>
 
 </manifest>

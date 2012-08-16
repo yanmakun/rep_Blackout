@@ -1,5 +1,9 @@
 package jp.gr.uchiwa.blackout.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import jp.gr.uchiwa.blackout.service.Db.Bukken;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -21,16 +25,16 @@ public class BukkenEditService {
 			if (pNo != 0) {
 				sqlite.update
 					(
-						"",
+						Bukken.TABLE_NAME,
 						values,
-						"no = ?",
+						Bukken.COL_NO.getName().concat(" = ?"),
 						new String[]{ Integer.toString(pNo) }
 					);
 			} else {
-				values.put("no", getNextNo(sqlite));
+				values.put(Bukken.COL_NO.getName(), getNextNo(sqlite));
 				sqlite.insert
 					(
-						"",
+						Bukken.TABLE_NAME,
 						null,
 						values
 					);
@@ -44,23 +48,31 @@ public class BukkenEditService {
 		}
 	}
 
-	public Cursor getBukken(final int pNo) {
+	public Map<String, String> getBukken(final int pNo) {
 		final Db db = new Db(this.context);
 		final SQLiteDatabase sqlite = db.getDatabase();
-		Cursor cursor = null;
+		Map<String, String> data = null;
 		try {
 			sqlite.beginTransaction();
-			cursor = sqlite.query
+			final Cursor cursor = sqlite.query
 				(
-					"",
-					new String[]{},
-					"no = ?",
+					Bukken.TABLE_NAME,
+					new String[]{
+							Bukken.COL_NO.getName(),
+							Bukken.COL_BUKKEN_NAME.getName(),
+							Bukken.COL_SUB_GROUP_NAME.getName(),
+							Bukken.COL_URGENT_CONTACT.getName(),
+							Bukken.COL_CHARGE_NAME.getName(),
+							Bukken.COL_REMARKS.getName()
+					},
+					Bukken.COL_NO.getName().concat(" = ?"),
 					new String[]{ Integer.toString(pNo) },
 					null,
 					null,
 					null
 				);
-			cursor.moveToFirst();
+			data = convertCursorToMap(cursor);
+			cursor.close();
 			sqlite.setTransactionSuccessful();
 		} catch (Exception e) {
 			// どうしよう・・・。
@@ -68,21 +80,30 @@ public class BukkenEditService {
 			sqlite.endTransaction();
 			db.close();
 		}
-		return cursor;
+		return data;
 	}
 
 	private int getNextNo(final SQLiteDatabase sqlite) {
-		Cursor cursor = sqlite.query
+		final Cursor cursor = sqlite.query
 			(
-				"",
-				new String[]{ "no" },
+				Bukken.TABLE_NAME,
+				new String[]{ Bukken.COL_NO.getName() },
 				null,
 				null,
 				null,
-				"no desc",
+				Bukken.COL_NO.getName().concat(" desc"),
 				"1"
 			);
 		cursor.moveToFirst();
 		return cursor.getInt(0) + 1;
+	}
+
+	private Map<String, String> convertCursorToMap(Cursor pCursor) {
+		pCursor.moveToFirst();
+		final Map<String, String> data = new HashMap<String, String>();
+		for (int i = 0; i < pCursor.getColumnCount() - 1; i++) {
+			data.put(pCursor.getColumnName(i), pCursor.getString(i));
+		}
+		return data;
 	}
 }
