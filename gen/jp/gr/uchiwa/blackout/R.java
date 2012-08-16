@@ -20,7 +20,7 @@ public final class R {
         public static final int ic_launcher=0x7f020001;
     }
     public static final class id {
-        public static final int btnWidget=0x7f090015;
+        public static final int btnDataUpdate=0x7f090016;
         public static final int bukkenList=0x7f090012;
         public static final int bukkenName=0x7f090004;
         public static final int bukkenUpdate=0x7f09000e;
@@ -29,7 +29,7 @@ public final class R {
         public static final int datePicker1=0x7f090000;
         public static final int expandableListView1=0x7f090001;
         public static final int mainTitle=0x7f09000f;
-        public static final int menu_settings=0x7f090016;
+        public static final int menu_settings=0x7f090017;
         public static final int moveToBlackoutSchedule=0x7f090013;
         public static final int moveToBukkenEdit=0x7f090011;
         public static final int subGroup=0x7f090007;
@@ -38,11 +38,12 @@ public final class R {
         public static final int tableRow2=0x7f090005;
         public static final int tableRow3=0x7f090008;
         public static final int tableRow4=0x7f09000b;
-        public static final int textView=0x7f090014;
         public static final int textView1=0x7f090003;
         public static final int textView2=0x7f090006;
         public static final int textView3=0x7f090009;
         public static final int textView4=0x7f09000c;
+        public static final int txtvwTitle=0x7f090014;
+        public static final int txtvwWidget=0x7f090015;
     }
     public static final class layout {
         public static final int activity_blackout_schedule=0x7f030000;
