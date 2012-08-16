@@ -1,7 +1,11 @@
 package jp.gr.uchiwa.blackout.activity;
 
+import java.util.Map;
+
 import jp.gr.uchiwa.blackout.R;
+import jp.gr.uchiwa.blackout.service.BukkenEditService;
 import android.app.Activity;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,11 +13,12 @@ import android.widget.EditText;
 
 public class BukkenEditActivity extends Activity {
 
-	private EditText bukkenName;
-	private EditText subGroup;
-	private EditText contactAddress;
-	private EditText contactPerson;
-	private Button   bukkenEntry;
+	private EditText            bukkenName;
+	private EditText            subGroup;
+	private EditText            contactAddress;
+	private EditText            contactPerson;
+	private Button              bukkenEntry;
+	private Map<String, String> data;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +26,7 @@ public class BukkenEditActivity extends Activity {
 		setContentView(R.layout.activity_bukken_edit);
 		findView();
 		addEventHandler();
-		bindData();
+//		bindData();
 	}
 
 	private void findView() {
@@ -40,5 +45,7 @@ public class BukkenEditActivity extends Activity {
 	}
 
 	private void bindData() {
+		BukkenEditService service = new BukkenEditService(this);
+		data = service.getBukken(0);
 	}
 }
