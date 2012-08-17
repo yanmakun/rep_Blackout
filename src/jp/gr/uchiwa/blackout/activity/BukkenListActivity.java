@@ -11,7 +11,12 @@ import jp.gr.uchiwa.blackout.service.Db.Bukken;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -45,6 +50,29 @@ public class BukkenListActivity extends Activity {
 		final TextView bukkenListHeader = new TextView(this);
 		bukkenListHeader.setText("物件名／サブグループ");
 		bukkenList.addHeaderView(bukkenListHeader);
+		registerForContextMenu(bukkenList);
+	}
+
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		menu.setHeaderTitle("操作");
+		menu.add("編集");
+		menu.add("削除");
+	}
+
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		String title = (String) item.getTitle();
+		if ("編集".equals(title)) {
+			Intent intent = new Intent(BukkenListActivity.this, BukkenEditActivity.class);
+			final Map<String, String> data = dataList.get(info.position);
+			final int no = Integer.parseInt(data.get(Bukken.COL_NO.getName()));
+			intent.putExtra(Bukken.COL_NO.getName(), no);
+			startActivity(intent);
+		} else {
+			dataList.remove(info.position);
+		}
+		return true;
 	}
 
 	private void addEventHandler() {
@@ -58,9 +86,6 @@ public class BukkenListActivity extends Activity {
 		moveToBlackoutSchedule.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				final Intent intent = new Intent(BukkenListActivity.this, BlackoutScheduleActivity.class);
-				final Map<String, String> data = dataList.get(0);
-				final int no = Integer.parseInt(data.get(Bukken.COL_NO.getName()));
-				intent.putExtra(Bukken.COL_NO.getName(), no);
 				startActivity(intent);
 			}
 		});
