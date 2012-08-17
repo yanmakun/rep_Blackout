@@ -42,8 +42,6 @@ public class BukkenEditService {
 					);
 			}
 			sqlite.setTransactionSuccessful();
-//		} catch (Exception e) {
-			// どうしよう・・・。
 		} finally {
 			sqlite.endTransaction();
 			db.close();
@@ -52,12 +50,11 @@ public class BukkenEditService {
 
 	private ContentValues convertMapToContentValues(Map<String, String> pData) {
 		final ContentValues values = new ContentValues();
-		values.put(Bukken.COL_NO.getName(), pData.get(Bukken.COL_NO.getName()));
-		values.put(Bukken.COL_BUKKEN_NAME.getName(), pData.get(Bukken.COL_BUKKEN_NAME.getName()));
+		values.put(Bukken.COL_NO.getName(),             pData.get(Bukken.COL_NO.getName()));
+		values.put(Bukken.COL_BUKKEN_NAME.getName(),    pData.get(Bukken.COL_BUKKEN_NAME.getName()));
 		values.put(Bukken.COL_SUB_GROUP_NAME.getName(), pData.get(Bukken.COL_SUB_GROUP_NAME.getName()));
-		values.put(Bukken.COL_CHARGE_NAME.getName(), pData.get(Bukken.COL_CHARGE_NAME.getName()));
 		values.put(Bukken.COL_URGENT_CONTACT.getName(), pData.get(Bukken.COL_URGENT_CONTACT.getName()));
-		values.put(Bukken.COL_REMARKS.getName(), pData.get(Bukken.COL_SUB_GROUP_NAME.getName()));
+		values.put(Bukken.COL_CHARGE_NAME.getName(),    pData.get(Bukken.COL_CHARGE_NAME.getName()));
 		return values;
 	}
 
@@ -75,8 +72,7 @@ public class BukkenEditService {
 							Bukken.COL_BUKKEN_NAME.getName(),
 							Bukken.COL_SUB_GROUP_NAME.getName(),
 							Bukken.COL_URGENT_CONTACT.getName(),
-							Bukken.COL_CHARGE_NAME.getName(),
-							Bukken.COL_REMARKS.getName()
+							Bukken.COL_CHARGE_NAME.getName()
 					},
 					Bukken.COL_NO.getName().concat(" = ?"),
 					new String[]{ Integer.toString(pNo) },
@@ -87,8 +83,6 @@ public class BukkenEditService {
 			data = convertCursorToMap(pNo, cursor);
 			cursor.close();
 			sqlite.setTransactionSuccessful();
-		} catch (Exception e) {
-			// どうしよう・・・。
 		} finally {
 			sqlite.endTransaction();
 			db.close();
@@ -122,7 +116,7 @@ public class BukkenEditService {
 		final int cnt = pCursor.getCount();
 		data.put(Bukken.COL_NO.getName(), Integer.toString(pNo));
 		if (cnt > 0) {
-			for (int i = 0; i < pCursor.getColumnCount() - 1; i++) {
+			for (int i = 0; i < pCursor.getColumnCount(); i++) {
 				data.put(pCursor.getColumnName(i), pCursor.getString(i));
 			}
 		}

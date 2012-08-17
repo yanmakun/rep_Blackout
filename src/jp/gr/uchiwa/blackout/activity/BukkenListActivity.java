@@ -12,10 +12,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -41,8 +40,8 @@ public class BukkenListActivity extends Activity {
 	}
 
 	private void findView() {
-		moveToBukkenEdit       = (Button) findViewById(R.id.moveToBukkenEdit);
-		moveToBlackoutSchedule = (Button) findViewById(R.id.moveToBlackoutSchedule);
+		moveToBukkenEdit       = (Button)   findViewById(R.id.moveToBukkenEdit);
+		moveToBlackoutSchedule = (Button)   findViewById(R.id.moveToBlackoutSchedule);
 		bukkenList             = (ListView) findViewById(R.id.bukkenList);
 	}
 
@@ -61,15 +60,18 @@ public class BukkenListActivity extends Activity {
 	}
 
 	public boolean onContextItemSelected(MenuItem item) {
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-		String title = (String) item.getTitle();
+		final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		final String title = (String) item.getTitle();
+		final Intent intent = new Intent(BukkenListActivity.this, BukkenEditActivity.class);
+		final Map<String, String> data = dataList.get(info.position);
+		final int no = Integer.parseInt(data.get(Bukken.COL_NO.getName()));
+		final BukkenListService service = new BukkenListService(this);
 		if ("編集".equals(title)) {
-			Intent intent = new Intent(BukkenListActivity.this, BukkenEditActivity.class);
-			final Map<String, String> data = dataList.get(info.position);
-			final int no = Integer.parseInt(data.get(Bukken.COL_NO.getName()));
 			intent.putExtra(Bukken.COL_NO.getName(), no);
 			startActivity(intent);
 		} else {
+			service.deleteBukken(no);
+			bukkenList.removeViewAt(info.position);
 			dataList.remove(info.position);
 		}
 		return true;

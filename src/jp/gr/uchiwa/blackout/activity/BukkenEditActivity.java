@@ -17,10 +17,10 @@ import android.widget.EditText;
 public class BukkenEditActivity extends Activity {
 
 	private EditText            bukkenName;
-	private EditText            subGroup;
-	private EditText            contactAddress;
-	private EditText            contactPerson;
-	private Button              bukkenEntry;
+	private EditText            subGroupName;
+	private EditText            urgentContact;
+	private EditText            chargeText;
+	private Button              bukkenUpdate;
 	private Button              cancel;
 	private Map<String, String> data;
 
@@ -34,33 +34,32 @@ public class BukkenEditActivity extends Activity {
 	}
 
 	private void findView() {
-		bukkenName     = (EditText) findViewById(R.id.bukkenName);
-		subGroup       = (EditText) findViewById(R.id.subGroup);
-		contactAddress = (EditText) findViewById(R.id.contactAddress);
-		contactPerson  = (EditText) findViewById(R.id.contactPerson);
-		bukkenEntry    = (Button) findViewById(R.id.bukkenUpdate);
-		cancel         = (Button) findViewById(R.id.cancel);
+		bukkenName    = (EditText) findViewById(R.id.bukkenName);
+		subGroupName  = (EditText) findViewById(R.id.subGroupName);
+		urgentContact = (EditText) findViewById(R.id.urgentContact);
+		chargeText    = (EditText) findViewById(R.id.chargeText);
+		bukkenUpdate  = (Button)   findViewById(R.id.bukkenUpdate);
+		cancel        = (Button)   findViewById(R.id.cancel);
 	}
 
 	private void addEventHandler() {
 		final BukkenEditService service = new BukkenEditService(this);
-		final AlertDialog.Builder alert = new AlertDialog.Builder(this);
-		bukkenEntry.setOnClickListener(new View.OnClickListener() {
+		final AlertDialog.Builder validateMessage = new AlertDialog.Builder(this);
+		bukkenUpdate.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				data.put(Bukken.COL_BUKKEN_NAME.getName(), bukkenName.getText().toString());
-				data.put(Bukken.COL_SUB_GROUP_NAME.getName(), subGroup.getText().toString());
-				data.put(Bukken.COL_CHARGE_NAME.getName(), contactPerson.getText().toString());
-				data.put(Bukken.COL_URGENT_CONTACT.getName(), contactAddress.getText().toString());
-				data.put(Bukken.COL_REMARKS.getName(), null);
-				if (!validate(data)) {
-					alert.setTitle("入力チェック");
-					alert.setMessage("物件名とサブグループ名は必ず入力して下さい。");
-					alert.setPositiveButton("了解", new DialogInterface.OnClickListener() {
+				data.put(Bukken.COL_SUB_GROUP_NAME.getName(), subGroupName.getText().toString());
+				data.put(Bukken.COL_URGENT_CONTACT.getName(), urgentContact.getText().toString());
+				data.put(Bukken.COL_CHARGE_NAME.getName(), chargeText.getText().toString());
+				if (!validateBukkenUpdate(data)) {
+					validateMessage.setTitle("入力チェック");
+					validateMessage.setMessage("物件名とサブグループは必ず入力して下さい。");
+					validateMessage.setPositiveButton("了解", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
 							// 何もしない。
 						}
 					});
-					alert.show();
+					validateMessage.show();
 					return;
 				}
 				service.editBukken(data);
@@ -82,13 +81,12 @@ public class BukkenEditActivity extends Activity {
 		final int no = intent.getIntExtra(Bukken.COL_NO.getName(), 0);
 		data = service.getBukken(no);
 		bukkenName.setText(data.get(Bukken.COL_BUKKEN_NAME.getName()));
-		subGroup.setText(data.get(Bukken.COL_SUB_GROUP_NAME.getName()));
-		contactPerson.setText(data.get(Bukken.COL_CHARGE_NAME.getName()));
-		contactAddress.setText(data.get(Bukken.COL_URGENT_CONTACT.getName()));
-//		remarks.setText(data.get(Bukken.COL_REMARKS.getName()));
+		subGroupName.setText(data.get(Bukken.COL_SUB_GROUP_NAME.getName()));
+		urgentContact.setText(data.get(Bukken.COL_URGENT_CONTACT.getName()));
+		chargeText.setText(data.get(Bukken.COL_CHARGE_NAME.getName()));
 	}
 
-	private boolean validate(Map<String, String> pData) {
+	private boolean validateBukkenUpdate(Map<String, String> pData) {
 		if (isEmpty(pData.get(Bukken.COL_BUKKEN_NAME.getName()))) {
 			return false;
 		}

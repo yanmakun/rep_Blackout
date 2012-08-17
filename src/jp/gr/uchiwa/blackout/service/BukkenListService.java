@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import jp.gr.uchiwa.blackout.service.Db.Bukken;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -33,16 +32,14 @@ public class BukkenListService {
 							Bukken.COL_SUB_GROUP_NAME.getName()
 					},
 					null,
-					new String[]{},
 					null,
 					null,
-					Bukken.COL_NO.getName().concat(" desc")
+					null,
+					Bukken.COL_NO.getName().concat(" asc")
 				);
 			dataList = convertCursorToList(cursor);
 			cursor.close();
 			sqlite.setTransactionSuccessful();
-		} catch (Exception e) {
-			// どうしよう・・・。
 		} finally {
 			sqlite.endTransaction();
 			db.close();
@@ -62,5 +59,18 @@ public class BukkenListService {
 			pCursor.moveToNext();
 		}
 		return dataList;
+	}
+
+	public void deleteBukken(final int pNo) {
+		final Db db = new Db(this.context);
+		final SQLiteDatabase sqlite = db.getDatabase();
+		try {
+			sqlite.beginTransaction();
+			sqlite.delete(Bukken.TABLE_NAME, Bukken.COL_NO.getName().concat(" = ?"), new String[] { Integer.toString(pNo) });
+			sqlite.setTransactionSuccessful();
+		} finally {
+			sqlite.endTransaction();
+			db.close();
+		}
 	}
 }
