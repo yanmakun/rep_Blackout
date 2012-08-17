@@ -53,9 +53,9 @@ public class BukkenListService {
 	private List<HashMap<String, String>> convertCursorToList(Cursor pCursor) {
 		final List<HashMap<String, String>> dataList = new ArrayList<HashMap<String,String>>();
 		pCursor.moveToFirst();
-		for (int i = 0; i < pCursor.getCount() - 1; i++) {
+		for (int i = 0; i < pCursor.getCount(); i++) {
 			final HashMap<String, String> data = new HashMap<String, String>();
-			for (int j = 0; j < pCursor.getColumnCount() - 1; j++) {
+			for (int j = 0; j < pCursor.getColumnCount(); j++) {
 				data.put(pCursor.getColumnName(j), pCursor.getString(j));
 			}
 			dataList.add(data);
