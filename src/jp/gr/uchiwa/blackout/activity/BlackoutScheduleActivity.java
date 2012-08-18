@@ -1,5 +1,6 @@
 package jp.gr.uchiwa.blackout.activity;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -8,10 +9,13 @@ import java.util.Map;
 
 import jp.gr.uchiwa.blackout.model.TimeZone;
 import jp.gr.uchiwa.blackout.model.TimeZoneDetail;
+import jp.gr.uchiwa.blackout.service.BlackoutScheduleService;
+import jp.gr.uchiwa.blackout.service.Db;
 import jp.gr.uchiwa.blackout.service.ScheduleService;
 import jp.gr.uchiwa.blackout.R;
 import jp.gr.uchiwa.blackout.R.id;
 import android.app.Activity;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
@@ -25,74 +29,86 @@ import android.widget.SimpleExpandableListAdapter;
  * @author takuro
  *
  */
-public class BlackoutScheduleActivity extends Activity implements OnDateChangedListener{
-    /** Called when the activity is first created. */
+public class BlackoutScheduleActivity extends Activity implements OnDateChangedListener{    
+	
+	// 時間帯リストキー
+	/** 物件Noキー */
+    public static final String KEY_BUKKEN_NO = "BUKKEN_NO";
+    /** 物件名キー */
+	public static final String KEY_BUKKEN_NAME= "BUKKEN_NAME";
+	/** 時間帯キー */
+    public static final String KEY_TIMEZONE = "TIMEZONE";
+    /** サブグループキー */
+    public static final String KEY_SUBGROUP_NAME = "SUBGROUPNAME";
+
+    // 日付
+    private String picDate;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //new ScheduleService(this).refreshInBackground();
-        // 画面レイアウト
-        setContentView(R.layout.activity_blackout_schedule);
         
-        // 日付選択ボックスの作成
-        DatePicker datePicker = (DatePicker) findViewById(id.datePicker1);
+        // 九電から最新の計画停電データを取得
+        //new ScheduleService(this).refreshInBackground();
+
+        // 画面設定
+        setContentView(R.layout.activity_blackout_schedule);
+        DatePicker datePicker = (DatePicker) findViewById(id.datePicker1); // 日付選択ボックス
         ExpandableListView exListView1 = (ExpandableListView) findViewById(id.expandableListView1); // 時間帯リスト
 
-        //日付の設定
+        // 日付選択ボックスに現在日付の設定
         Calendar c = Calendar.getInstance();
         datePicker.init(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH),this);
+        
+        // 日付選択ボックス用日付形式
+        SimpleDateFormat sf = new SimpleDateFormat("yyyy/m/d");
+        setPicDate(sf.format(c.getTime()));
+        
+        // 時間帯リスト用ノード
+        List<Map<String, Object>> parentList = new ArrayList<Map<String,Object>>(); // 親ノードリスト
+        List<List<Map<String, Object>>> allChildList = new ArrayList<List<Map<String,Object>>>(); // 子ノードリスト
+        
+        // 九電スケジュールから取得
+        List<TimeZone> timeZoneList = makeTimeZoneTestList();
 
-        List<Map<String, Object>> parentList = new ArrayList<Map<String,Object>>(); // 親ノードのリスト
-        List<TimeZone> timeZoneList = makeTimeZoneTestList(); // 日付ごとの時間帯リスト
-
-        // 子ノードのリスト
-        // 親ノードのリストにもう1個リストをかぶせた感じ
-        List<List<Map<String, Object>>> allChildList = new ArrayList<List<Map<String,Object>>>();
-
-
-        // 時間割を設定
-        for(int i = 0 ; i< timeZoneList.size() ; i++){
+        // 時間割を設定        
+        for(TimeZone timeZone : timeZoneList){
+        	
         	Map<String, Object> parentData = new HashMap<String, Object>();
-
-        	TimeZone timeZone = timeZoneList.get(i);
         	List<TimeZoneDetail> detailList = timeZone.getTimeZoneDetailList();
 
-
-        	parentData.put("TIMEZONE",timeZone.getTimeZoneName());
+        	parentData.put(KEY_TIMEZONE,timeZone.getTimeZoneName());
         	parentList.add(parentData);
 
         	List<Map<String, Object>> childList = new ArrayList<Map<String,Object>>();
 
-            for(int j = 0; j < detailList.size(); j++){
-                // 親と同じように設定する
+            for(TimeZoneDetail timeZoneDetail : detailList){
+
                 Map<String, Object> childData = new HashMap<String, Object>();
 
-                TimeZoneDetail timeZoneDetail = (TimeZoneDetail)detailList.get(j);
-                childData.put("HOUSINGNAME", timeZoneDetail.getHousingName());
-                childData.put("SUBGROUPNAME", timeZoneDetail.getSubGroupName());
+                childData.put(KEY_BUKKEN_NAME, timeZoneDetail.getNo() + ":" + timeZoneDetail.getBukkenName());
+                childData.put(KEY_SUBGROUP_NAME, timeZoneDetail.getSubGroupName());
                 childList.add(childData);
             }
 
             allChildList.add(childList);
         }
 
+        // 時間帯リストに詰め込み
         ExpandableListAdapter adapter = new SimpleExpandableListAdapter(
                 this,
                 parentList,
                 android.R.layout.simple_expandable_list_item_1,
-                new String []{"TIMEZONE"},
+                new String []{KEY_TIMEZONE},
                 new int []{android.R.id.text1},
                 allChildList,
                 android.R.layout.simple_expandable_list_item_2,
-                new String []{"HOUSINGNAME", "SUBGROUPNAME"},
+                new String []{KEY_BUKKEN_NAME, KEY_SUBGROUP_NAME},
                 new int []{android.R.id.text1, android.R.id.text2}
         );
-
-        // アダプタを設定
         exListView1.setAdapter(adapter);
 
-        // OnChildClickListenerを設定
+        // 時間帯リストリスナー
         exListView1.setOnChildClickListener(new ExpandableListView.OnChildClickListener(){
 
             // 子が選択された時
@@ -119,54 +135,81 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
         });
     }
 
+    // 表示日付が変更されたら
     public void onDateChanged(DatePicker view, int year, int monthOfYear,
             int dayOfMonth) {
-        // TODO Auto-generated method stub
         view.updateDate(year, monthOfYear, dayOfMonth);
+        setPicDate("" + year + "/" + monthOfYear + "/" + dayOfMonth);
     }
-
+    
     /**
-     * テストデータ挿入
-     * @return エラーがなければtrue
+     * 時間帯ごとに取得したスケジュールを分割する
+     * @return 時間帯データリスト
      */
     public List<TimeZone> makeTimeZoneTestList(){
-    	List<TimeZone> timeZoneList = new ArrayList<TimeZone>(); //時間帯リスト
-    	List<TimeZoneDetail> timeZoneDetailList = new ArrayList<TimeZoneDetail>();//明細リスト
-    	TimeZoneDetail timeZoneDetail;
+    
+    	List<TimeZone> resultTimeZoneList = new ArrayList<TimeZone>();
+    	BlackoutScheduleService blackoutScheduleService = new BlackoutScheduleService();
 
-    	//8:30～11:00
-    	timeZoneDetailList.add(new TimeZoneDetail("11", "物件A", "A01", "111-1111-1111", "担当者A", "備考A"));
-    	timeZoneDetailList.add(new TimeZoneDetail("12", "物件B", "A02", "222-2222-2222", "担当者B", "備考B"));
-    	timeZoneList.add(new TimeZone("01", "8:30～11:00", timeZoneDetailList));
+    	//ここで一覧をタイムゾーンごとに分割して再度リストに突っ込む。
+    	ArrayList<TimeZoneDetail> scheduleListOfDate = (ArrayList<TimeZoneDetail>)blackoutScheduleService.getTimeZoneListForSQLite(this, "2012/08/01");
+    	
+    	// 時間帯リスト
+    	List<TimeZoneDetail> timeZoneList1 = new ArrayList<TimeZoneDetail>(); // 8:30開始
+    	List<TimeZoneDetail> timeZoneList2 = new ArrayList<TimeZoneDetail>(); // 10:30開始
+    	List<TimeZoneDetail> timeZoneList3 = new ArrayList<TimeZoneDetail>(); // 12:30開始
+    	List<TimeZoneDetail> timeZoneList4 = new ArrayList<TimeZoneDetail>(); // 14:30開始
+    	List<TimeZoneDetail> timeZoneList5 = new ArrayList<TimeZoneDetail>(); // 16:30開始
+    	List<TimeZoneDetail> timeZoneList6 = new ArrayList<TimeZoneDetail>(); // 17:30開始	
+    	
+    	for (TimeZoneDetail timeZoneDetail : scheduleListOfDate) {
+        	
+        	if( "8:30".equals(timeZoneDetail.getStartTime())){
+        		timeZoneList1.add(timeZoneDetail);
+        		continue;
+        	}
+ 
+        	if( "10:30".equals(timeZoneDetail.getStartTime())){
+        		timeZoneList2.add(timeZoneDetail);
+        		continue;
+        	}
 
+        	if( "12:30".equals(timeZoneDetail.getStartTime())){
+        		timeZoneList3.add(timeZoneDetail);
+        		continue;
+        	}
+        	if( "14:30".equals(timeZoneDetail.getStartTime())){
+        		timeZoneList4.add(timeZoneDetail);
+        		continue;
+        	}
+ 
+        	if( "16:30".equals(timeZoneDetail.getStartTime())){
+        		timeZoneList5.add(timeZoneDetail);
+        		continue;
+        	}
 
-    	//10:30～13:00
-    	timeZoneDetailList = new ArrayList<TimeZoneDetail>();//明細リスト
-    	timeZoneDetailList.add(new TimeZoneDetail("13", "物件C", "A03", "333-3333-3333", "担当者C", "備考C"));
-    	timeZoneDetailList.add(new TimeZoneDetail("14", "物件D", "A04", "444-4444-4444", "担当者D", "備考D"));
-    	timeZoneList.add(new TimeZone("02", "10:30～13:00", timeZoneDetailList));
-
-    	//12:30～15:00
-    	timeZoneDetailList = new ArrayList<TimeZoneDetail>();//明細リスト
-    	timeZoneDetailList.add(new TimeZoneDetail("15", "物件E", "A05", "555-5555-5555", "担当者E", "備考E"));
-    	timeZoneDetailList.add(new TimeZoneDetail("16", "物件F", "A06", "666-6666-6666", "担当者F", "備考F"));
-    	timeZoneList.add(new TimeZone("03", "12:30～15:00", timeZoneDetailList));
-
-    	//14:30～17:00
-    	timeZoneDetailList = new ArrayList<TimeZoneDetail>();//明細リスト
-    	timeZoneDetailList.add(new TimeZoneDetail("17", "物件G", "A07", "777-7777-7777", "担当者G", "備考G"));
-    	timeZoneList.add(new TimeZone("04", "14:30～17:00", timeZoneDetailList));
-
-    	//16:30～19:00
-    	timeZoneDetailList = new ArrayList<TimeZoneDetail>();//明細リスト
-    	timeZoneDetailList.add(new TimeZoneDetail("19", "物件H", "A09", "999-9999-9999", "担当者H", "備考H"));
-    	timeZoneList.add(new TimeZone("05", "16:30～19:00", timeZoneDetailList));
-
-    	//18:30～21:00
-    	timeZoneDetailList = new ArrayList<TimeZoneDetail>();//明細リスト
-    	timeZoneDetailList.add(new TimeZoneDetail("20", "物件I", "A10", "000-0000-0000", "担当者I", "備考I"));
-    	timeZoneList.add(new TimeZone("06", "18:30～21:00", timeZoneDetailList));
-
-    	return (List<TimeZone>)timeZoneList;
+        	if( "18:30".equals(timeZoneDetail.getStartTime())){
+        		timeZoneList6.add(timeZoneDetail);
+        		continue;
+        	}
+            
+        }   	
+    	
+    	resultTimeZoneList.add(new TimeZone("01","8:30～11:00",timeZoneList1));
+    	resultTimeZoneList.add(new TimeZone("02","10:30～13:00",timeZoneList2));
+    	resultTimeZoneList.add(new TimeZone("03","12:30～15:00",timeZoneList3));
+    	resultTimeZoneList.add(new TimeZone("04","14:30～17:00",timeZoneList4));
+    	resultTimeZoneList.add(new TimeZone("05","16:30～19:00",timeZoneList5));
+    	resultTimeZoneList.add(new TimeZone("06","18:30～21:00",timeZoneList6));
+    	
+    	return resultTimeZoneList;
     }
+
+	public String getPicDate() {
+		return picDate;
+	}
+
+	public void setPicDate(String picDate) {
+		this.picDate = picDate;
+	}
 }
