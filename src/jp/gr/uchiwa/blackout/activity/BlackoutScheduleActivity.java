@@ -10,13 +10,13 @@ import java.util.Map;
 import jp.gr.uchiwa.blackout.model.TimeZone;
 import jp.gr.uchiwa.blackout.model.TimeZoneDetail;
 import jp.gr.uchiwa.blackout.service.BlackoutScheduleService;
-import jp.gr.uchiwa.blackout.service.Db;
-import jp.gr.uchiwa.blackout.service.ScheduleService;
+import jp.gr.uchiwa.blackout.service.IntentKey;
 import jp.gr.uchiwa.blackout.R;
 import jp.gr.uchiwa.blackout.R.id;
 import android.app.Activity;
-import android.database.Cursor;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
@@ -40,9 +40,14 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
     public static final String KEY_TIMEZONE = "TIMEZONE";
     /** サブグループキー */
     public static final String KEY_SUBGROUP_NAME = "SUBGROUPNAME";
+    /** サブグループキー */
+    public static final String KEY_PRIORITY = "PRIORITY";
 
     // 日付
     private String picDate;
+    
+    // セパレーター
+    public static final String STR_SEPARATOR = ":";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -86,8 +91,10 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
 
                 Map<String, Object> childData = new HashMap<String, Object>();
 
-                childData.put(KEY_BUKKEN_NAME, timeZoneDetail.getNo() + ":" + timeZoneDetail.getBukkenName());
+                childData.put(KEY_BUKKEN_NAME,timeZoneDetail.getBukkenName());
                 childData.put(KEY_SUBGROUP_NAME, timeZoneDetail.getSubGroupName());
+                childData.put(KEY_BUKKEN_NO, timeZoneDetail.getNo());
+                childData.put(KEY_PRIORITY, timeZoneDetail.getPriority());
                 childList.add(childData);
             }
 
@@ -104,7 +111,8 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
                 allChildList,
                 android.R.layout.simple_expandable_list_item_2,
                 new String []{KEY_BUKKEN_NAME, KEY_SUBGROUP_NAME},
-                new int []{android.R.id.text1, android.R.id.text2}
+                new int []{android.R.id.text1, android.R.id.text2}         
+                
         );
         exListView1.setAdapter(adapter);
 
@@ -129,13 +137,21 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
                         groupPosition,
                         childPosition
                 );
+                
+                Log.v("ChildClick",(childMap.get(KEY_BUKKEN_NO)).toString());
+                
+                moveBukkenDetailActivity(childMap.get(KEY_BUKKEN_NO).toString());
 
                 return false;
             }
         });
     }
+    
 
-    // 表示日付が変更されたら
+
+    /**
+     * 日付選択ボックスの日付変更
+     */
     public void onDateChanged(DatePicker view, int year, int monthOfYear,
             int dayOfMonth) {
         view.updateDate(year, monthOfYear, dayOfMonth);
@@ -146,13 +162,14 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
      * 時間帯ごとに取得したスケジュールを分割する
      * @return 時間帯データリスト
      */
-    public List<TimeZone> makeTimeZoneTestList(){
+    private List<TimeZone> makeTimeZoneTestList(){
     
     	List<TimeZone> resultTimeZoneList = new ArrayList<TimeZone>();
     	BlackoutScheduleService blackoutScheduleService = new BlackoutScheduleService();
 
     	//ここで一覧をタイムゾーンごとに分割して再度リストに突っ込む。
-    	ArrayList<TimeZoneDetail> scheduleListOfDate = (ArrayList<TimeZoneDetail>)blackoutScheduleService.getTimeZoneListForSQLite(this, "2012/08/01");
+    	ArrayList<TimeZoneDetail> scheduleListOfDate 
+    		= (ArrayList<TimeZoneDetail>)blackoutScheduleService.getTimeZoneListForSQLite(this, "2012/08/01");
     	
     	// 時間帯リスト
     	List<TimeZoneDetail> timeZoneList1 = new ArrayList<TimeZoneDetail>(); // 8:30開始
@@ -204,11 +221,35 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
     	
     	return resultTimeZoneList;
     }
+    
+    /**
+     * 物件No.に対する物件詳細画面へ遷移する
+     * @param no:物件No.
+     */
+    private void moveBukkenDetailActivity(String no){
 
+    	// インテントへのインスタンス生成 
+    	Intent intent = new Intent(this,BukkenDetailActivity.class);
+        // 物件詳細画面へ渡す物件No.を設定
+        setIntent(intent.putExtra(IntentKey.BUKKEN_NO, Integer.valueOf(no)));
+        
+        // 画面遷移
+        startActivity(intent);
+    }
+    
+    
+    /**
+     * 日付選択リスト-日付取得
+     * @return
+     */
 	public String getPicDate() {
 		return picDate;
 	}
 
+	/**
+	 * 日付選択リスト-日付設定
+	 * @param picDate
+	 */
 	public void setPicDate(String picDate) {
 		this.picDate = picDate;
 	}
