@@ -15,12 +15,17 @@ import jp.gr.uchiwa.blackout.model.TimeZoneDetail;
 import jp.gr.uchiwa.blackout.service.BlackoutScheduleService;
 import jp.gr.uchiwa.blackout.service.IntentKey;
 import jp.gr.uchiwa.blackout.service.ScheduleService;
+import jp.gr.uchiwa.blackout.service.ScheduleService.IRefreshTask;
+import jp.gr.uchiwa.blackout.MainActivity;
 import jp.gr.uchiwa.blackout.R;
 import jp.gr.uchiwa.blackout.R.id;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
@@ -45,28 +50,30 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
     public static final String KEY_TIMEZONE = "TIMEZONE";
     /** サブグループキー */
     public static final String KEY_SUBGROUP_NAME = "SUBGROUPNAME";
-    /** 優先度 */
+    /** 優先度キー */
     public static final String KEY_PRIORITY = "PRIORITY";
     /** 優先度 + サブグループキー */
     public static final String KEY_PRIORITY_AND_SUBGROUP = "PRIORITY_AND_SUBGROUP";
 
+    /** メニューID1 */
+    private static final int MENU_ID_MENU1 = (Menu.FIRST + 1);
+    /** メニューID2 */
+    private static final int MENU_ID_MENU2 = (Menu.FIRST + 2);
+    
     // 日付
     private String picDate;
     SimpleDateFormat sf;
     
-    // セパレーター
-    public static final String STR_SEPARATOR = ":";
-    
     ExpandableListView exListView1;
     List<Map<String, Object>> parentList;
-    List<List<Map<String, Object>>> allChildList; // 子ノードリスト
+    List<List<Map<String, Object>>> allChildList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         // 九電から最新の計画停電データを取得
-        //new ScheduleService(this).refreshInBackground();
+        new ScheduleService(this).refreshInBackground();
 
         // 画面設定
         setContentView(R.layout.activity_blackout_schedule);
@@ -118,6 +125,51 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
             }
         });
     }
+    
+    /**
+     * メニューボタンの作成
+     */
+    public boolean onCreateOptionsMenu(Menu menu) {
+		boolean ret = super.onCreateOptionsMenu(menu);
+		menu.add(0 , Menu.FIRST+1 , Menu.NONE ,"対象物件一覧");
+		//menu.add(0 , Menu.FIRST+2 , Menu.NONE ,"メニュー1");
+
+		return ret;
+    }
+    
+    // オプションメニューが表示される度に呼び出されます
+    @Override
+   public boolean onPrepareOptionsMenu(Menu menu) {
+
+        //menu.findItem(MENU_ID_MENU2).setVisible(visible);
+        //visible = !visible;
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    // オプションメニューアイテムが選択された時に呼び出されます
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean ret = true;
+        switch (item.getItemId()) {
+	        default:
+	            ret = super.onOptionsItemSelected(item);
+	            break;
+	        case MENU_ID_MENU1:
+	        	// インテントへのインスタンス生成 
+	        	Intent intent = new Intent(this,BukkenListActivity.class);
+	            // 物件詳細画面へ渡す物件No.を設定
+	            //setIntent(intent.putExtra(IntentKey.BUKKEN_NO, Integer.valueOf(no)));
+	            // 物件詳細画面へ移動
+	            startActivity(intent);        	
+	        	
+	            //ret = true;
+	            break;
+	        case MENU_ID_MENU2:
+	            //ret = true;
+	            break;
+        }
+        return ret;
+    }
 
     /**
      * 日付選択ボックスの日付変更
@@ -148,7 +200,22 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
 	public void setPicDate(String picDate) {
 		this.picDate = picDate;
 	}
-    
+
+    /**
+     * 日付文字列"yyyy/MM/dd"をjava.util.Date型へ変換します。
+     * @param str 変換対象の文字列
+     * @return 変換後のjava.util.Dateオブジェクト
+     * @throws ParseException 日付文字列が"yyyy/MM/dd"以外の場合 
+     */
+    public static Date toDate(String str) {
+    	Date  date = new Date();
+    	try{
+    		date = DateFormat.getDateInstance().parse(str);
+    	}catch (ParseException e) {
+    		Log.v("ERR",e.toString());
+    	}
+        return date;
+    }
     /**
      * 時間帯ごとに取得したスケジュールを分割する
      * @return 時間帯データリスト
@@ -236,27 +303,10 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
     	Intent intent = new Intent(this,BukkenDetailActivity.class);
         // 物件詳細画面へ渡す物件No.を設定
         setIntent(intent.putExtra(IntentKey.BUKKEN_NO, Integer.valueOf(no)));
-        
-        // 画面遷移
+        // 物件詳細画面へ移動
         startActivity(intent);
     }
-    
-    /**
-     * 日付文字列"yyyy/MM/dd"をjava.util.Date型へ変換します。
-     * @param str 変換対象の文字列
-     * @return 変換後のjava.util.Dateオブジェクト
-     * @throws ParseException 日付文字列が"yyyy/MM/dd"以外の場合 
-     */
-    public static Date toDate(String str) {
-    	Date  date = new Date();
-    	try{
-    		date = DateFormat.getDateInstance().parse(str);
-    	}catch (ParseException e) {
-    		Log.v("ERR",e.toString());
-    	}
-        return date;
-    }
-    
+     
 	/**
 	 * 表示スケジュールを更新
 	 */
