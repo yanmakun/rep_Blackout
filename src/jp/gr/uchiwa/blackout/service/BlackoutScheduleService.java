@@ -45,12 +45,14 @@ public class BlackoutScheduleService {
 		        			Db.getString(cursor, Db.Schedule.COL_END_TIME),
 		        			Db.getInteger(cursor, Db.Schedule.COL_PRIORITY)
 	        			);
-	        	resultList.add(timeZoneDetail);	
+	        	resultList.add(timeZoneDetail);
+	        	Log.v("SQL",timeZoneDetail.toString());
 	        }
     	}catch(Exception e){
     		Log.v("ERR",e.toString());
     	}finally{
             cursor.close();
+            db.close();
         	return resultList;
     	}
     }
