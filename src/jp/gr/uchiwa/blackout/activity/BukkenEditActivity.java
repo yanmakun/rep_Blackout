@@ -51,6 +51,7 @@ public class BukkenEditActivity extends Activity {
 				data.put(Bukken.COL_SUB_GROUP_NAME.getName(), subGroupName.getText().toString());
 				data.put(Bukken.COL_URGENT_CONTACT.getName(), urgentContact.getText().toString());
 				data.put(Bukken.COL_CHARGE_NAME.getName(), chargeText.getText().toString());
+				data.put(Bukken.COL_REMARKS.getName(), "");
 				if (!validateBukkenUpdate(data)) {
 					validateMessage.setTitle("入力チェック");
 					validateMessage.setMessage("物件名とサブグループは必ず入力して下さい。");

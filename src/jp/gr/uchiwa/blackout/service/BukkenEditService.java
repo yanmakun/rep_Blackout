@@ -55,6 +55,7 @@ public class BukkenEditService {
 		values.put(Bukken.COL_SUB_GROUP_NAME.getName(), pData.get(Bukken.COL_SUB_GROUP_NAME.getName()));
 		values.put(Bukken.COL_URGENT_CONTACT.getName(), pData.get(Bukken.COL_URGENT_CONTACT.getName()));
 		values.put(Bukken.COL_CHARGE_NAME.getName(),    pData.get(Bukken.COL_CHARGE_NAME.getName()));
+		values.put(Bukken.COL_REMARKS.getName(),        pData.get(Bukken.COL_REMARKS.getName()));
 		return values;
 	}
 

@@ -48,6 +48,7 @@ public class BukkenListActivity extends Activity {
 	private void customizeView() {
 		final TextView bukkenListHeader = new TextView(this);
 		bukkenListHeader.setText("物件名／サブグループ");
+		bukkenListHeader.setTextSize(16);
 		bukkenList.addHeaderView(bukkenListHeader);
 		registerForContextMenu(bukkenList);
 	}
@@ -63,7 +64,7 @@ public class BukkenListActivity extends Activity {
 		final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		final String title = (String) item.getTitle();
 		final Intent intent = new Intent(BukkenListActivity.this, BukkenEditActivity.class);
-		final Map<String, String> data = dataList.get(info.position);
+		final Map<String, String> data = dataList.get(info.position - 1);
 		final int no = Integer.parseInt(data.get(Bukken.COL_NO.getName()));
 		final BukkenListService service = new BukkenListService(this);
 		if ("編集".equals(title)) {
@@ -71,8 +72,8 @@ public class BukkenListActivity extends Activity {
 			startActivity(intent);
 		} else {
 			service.deleteBukken(no);
-			bukkenList.removeViewAt(info.position);
-			dataList.remove(info.position);
+			adapter.remove(data.get(Bukken.COL_BUKKEN_NAME.getName()) + "／" + data.get(Bukken.COL_SUB_GROUP_NAME.getName()));
+			dataList.remove(info.position - 1);
 		}
 		return true;
 	}
