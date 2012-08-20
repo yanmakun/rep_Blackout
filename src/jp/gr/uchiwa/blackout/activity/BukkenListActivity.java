@@ -58,6 +58,7 @@ public class BukkenListActivity extends Activity {
 		menu.setHeaderTitle("操作");
 		menu.add("編集");
 		menu.add("削除");
+		menu.add("キャンセル");
 	}
 
 	public boolean onContextItemSelected(MenuItem item) {
@@ -70,7 +71,7 @@ public class BukkenListActivity extends Activity {
 		if ("編集".equals(title)) {
 			intent.putExtra(Bukken.COL_NO.getName(), no);
 			startActivity(intent);
-		} else {
+		} else if ("削除".equals(title)) {
 			service.deleteBukken(no);
 			adapter.remove(data.get(Bukken.COL_BUKKEN_NAME.getName()) + "／" + data.get(Bukken.COL_SUB_GROUP_NAME.getName()));
 			dataList.remove(info.position - 1);
