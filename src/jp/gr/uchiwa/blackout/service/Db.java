@@ -13,6 +13,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * @author jabaraster
@@ -82,13 +83,16 @@ public class Db {
      * @return 拡張for文でカーソルを扱えるようにするためのオブジェクト.
      */
     public static Iterable<Cursor> toIterable(final Cursor pCursor) {
-        if (!pCursor.moveToFirst()) {
+        if (pCursor.getCount() == 0) {
             return Collections.emptyList();
         }
+
+        Log.d(Db.class.getSimpleName(), String.valueOf(pCursor.getPosition()));
 
         return new Iterable<Cursor>() {
 
             public Iterator<Cursor> iterator() {
+
                 return new Iterator<Cursor>() {
 
                     public boolean hasNext() {
