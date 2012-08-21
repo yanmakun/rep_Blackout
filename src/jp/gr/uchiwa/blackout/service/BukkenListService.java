@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import jp.gr.uchiwa.blackout.service.Db.Bukken;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -33,16 +32,14 @@ public class BukkenListService {
 							Bukken.COL_SUB_GROUP_NAME.getName()
 					},
 					null,
-					new String[]{},
 					null,
-					Bukken.COL_NO.getName().concat(" desc"),
-					null
+					null,
+					null,
+					Bukken.COL_NO.getName().concat(" asc")
 				);
 			dataList = convertCursorToList(cursor);
 			cursor.close();
 			sqlite.setTransactionSuccessful();
-		} catch (Exception e) {
-			// どうしよう・・・。
 		} finally {
 			sqlite.endTransaction();
 			db.close();
@@ -53,10 +50,10 @@ public class BukkenListService {
 	private List<HashMap<String, String>> convertCursorToList(Cursor pCursor) {
 		final List<HashMap<String, String>> dataList = new ArrayList<HashMap<String,String>>();
 		pCursor.moveToFirst();
-		for (int i = 0; i < pCursor.getCount() - 1; i++) {
+		for (int i = 0; i < pCursor.getCount(); i++) {
 			final HashMap<String, String> data = new HashMap<String, String>();
-			for (int j = 0; j < pCursor.getColumnCount() - 1; j++) {
-				data.put(pCursor.getColumnName(0), pCursor.getString(0));
+			for (int j = 0; j < pCursor.getColumnCount(); j++) {
+				data.put(pCursor.getColumnName(j), pCursor.getString(j));
 			}
 			dataList.add(data);
 			pCursor.moveToNext();
@@ -64,53 +61,16 @@ public class BukkenListService {
 		return dataList;
 	}
 
-	public List<HashMap<String, String>> getBukkenListTest() {
-		final List<HashMap<String, String>> dataList = new ArrayList<HashMap<String,String>>();
-		HashMap<String, String> data = new HashMap<String, String>();
-		data.put("No", "1");
-		data.put("HousingName", "物件名1");
-		data.put("SubGroupName", "サブグループ1");
-		dataList.add(data);
-		data = new HashMap<String, String>();
-		data.put("No", "2");
-		data.put("HousingName", "物件名2");
-		data.put("SubGroupName", "サブグループ2");
-		dataList.add(data);
-		data = new HashMap<String, String>();
-		data.put("No", "3");
-		data.put("HousingName", "物件名3");
-		data.put("SubGroupName", "サブグループ3");
-		dataList.add(data);
-		data = new HashMap<String, String>();
-		data.put("No", "4");
-		data.put("HousingName", "物件名4");
-		data.put("SubGroupName", "サブグループ4");
-		dataList.add(data);
-		data = new HashMap<String, String>();
-		data.put("No", "5");
-		data.put("HousingName", "物件名5");
-		data.put("SubGroupName", "サブグループ5");
-		dataList.add(data);
-		data = new HashMap<String, String>();
-		data.put("No", "6");
-		data.put("HousingName", "物件名6");
-		data.put("SubGroupName", "サブグループ6");
-		dataList.add(data);
-		data = new HashMap<String, String>();
-		data.put("No", "7");
-		data.put("HousingName", "物件名7");
-		data.put("SubGroupName", "サブグループ7");
-		dataList.add(data);
-		data = new HashMap<String, String>();
-		data.put("No", "8");
-		data.put("HousingName", "物件名8");
-		data.put("SubGroupName", "サブグループ8");
-		dataList.add(data);
-		data = new HashMap<String, String>();
-		data.put("No", "9");
-		data.put("HousingName", "物件名9");
-		data.put("SubGroupName", "サブグループ9");
-		dataList.add(data);
-		return dataList;
+	public void deleteBukken(final int pNo) {
+		final Db db = new Db(this.context);
+		final SQLiteDatabase sqlite = db.getDatabase();
+		try {
+			sqlite.beginTransaction();
+			sqlite.delete(Bukken.TABLE_NAME, Bukken.COL_NO.getName().concat(" = ?"), new String[] { Integer.toString(pNo) });
+			sqlite.setTransactionSuccessful();
+		} finally {
+			sqlite.endTransaction();
+			db.close();
+		}
 	}
 }

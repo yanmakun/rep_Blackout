@@ -6,56 +6,63 @@ package jp.gr.uchiwa.blackout.model;
  *
  */
 public class TimeZoneDetail {
-	private String id;
-	private String housingName; //物件名
-	private String subGroupName; //サブグループ名
-	private String urgentContact; //緊急連絡先
-	private String chargeName; //担当者名
-	private String remarks; //備考
-
+	/** 物件No */
+	private String no;
+	/** 物件名 */
+	private String bukkenName;
+	/** サブグループ名 */
+	private String subGroupName;
+	/** 実施日 */
+	private String doDate;
+	/** 開始時刻 */
+	private String startTime;
+	/** 終了時刻 */
+	private String endTime;
+	/** 優先順位 */
+	private int priority;
 	/**
-	 * コンストラクタ
-	 * @param id
-	 * @param housingName
+	 * @param no
+	 * @param bukkenName
 	 * @param subGroupName
-	 * @param urgentContact
-	 * @param chargeName
-	 * @param remarks
+	 * @param doDate
+	 * @param startTime
+	 * @param endTime
+	 * @param priority
 	 */
-	public TimeZoneDetail(String id, String housingName, String subGroupName,
-			String urgentContact, String chargeName, String remarks) {
+	public TimeZoneDetail(String no, String bukkenName, String subGroupName,
+			String doDate, String startTime, String endTime, int priority) {
 		super();
-		this.id = id;
-		this.housingName = housingName;
+		this.no = no;
+		this.bukkenName = bukkenName;
 		this.subGroupName = subGroupName;
-		this.urgentContact = urgentContact;
-		this.chargeName = chargeName;
-		this.remarks = remarks;
-	}
-
-	/**
-	 * @return id
-	 */
-	public String getId() {
-		return id;
+		this.doDate = doDate;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.priority = priority;
 	}
 	/**
-	 * @param id セットする id
+	 * @return no
 	 */
-	public void setId(String id) {
-		this.id = id;
+	public String getNo() {
+		return no;
 	}
 	/**
-	 * @return housingName
+	 * @param no セットする no
 	 */
-	public String getHousingName() {
-		return housingName;
+	public void setNo(String no) {
+		this.no = no;
 	}
 	/**
-	 * @param housingName セットする housingName
+	 * @return bukkenName
 	 */
-	public void setHousingName(String housingName) {
-		this.housingName = housingName;
+	public String getBukkenName() {
+		return bukkenName;
+	}
+	/**
+	 * @param bukkenName セットする bukkenName
+	 */
+	public void setBukkenName(String bukkenName) {
+		this.bukkenName = bukkenName;
 	}
 	/**
 	 * @return subGroupName
@@ -70,115 +77,66 @@ public class TimeZoneDetail {
 		this.subGroupName = subGroupName;
 	}
 	/**
-	 * @return urgentContact
+	 * @return doDate
 	 */
-	public String getUrgentContact() {
-		return urgentContact;
+	public String getDoDate() {
+		return doDate;
 	}
 	/**
-	 * @param urgentContact セットする urgentContact
+	 * @param doDate セットする doDate
 	 */
-	public void setUrgentContact(String urgentContact) {
-		this.urgentContact = urgentContact;
+	public void setDoDate(String doDate) {
+		this.doDate = doDate;
 	}
 	/**
-	 * @return chargeName
+	 * @return startTime
 	 */
-	public String getChargeName() {
-		return chargeName;
+	public String getStartTime() {
+		return startTime;
 	}
 	/**
-	 * @param chargeName セットする chargeName
+	 * @param startTime セットする startTime
 	 */
-	public void setChargeName(String chargeName) {
-		this.chargeName = chargeName;
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
 	}
 	/**
-	 * @return remarks
+	 * @return endTime
 	 */
-	public String getRemarks() {
-		return remarks;
+	public String getEndTime() {
+		return endTime;
 	}
 	/**
-	 * @param remarks セットする remarks
+	 * @param endTime セットする endTime
 	 */
-	public void setRemarks(String remarks) {
-		this.remarks = remarks;
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
+	}
+	/**
+	 * @return priority
+	 */
+	public int getPriority() {
+		return priority;
+	}
+	/**
+	 * @param priority セットする priority
+	 */
+	public void setPriority(int priority) {
+		this.priority = priority;
 	}
 
-	/* (非 Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((chargeName == null) ? 0 : chargeName.hashCode());
-		result = prime * result
-				+ ((housingName == null) ? 0 : housingName.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((remarks == null) ? 0 : remarks.hashCode());
-		result = prime * result
-				+ ((subGroupName == null) ? 0 : subGroupName.hashCode());
-		result = prime * result
-				+ ((urgentContact == null) ? 0 : urgentContact.hashCode());
-		return result;
-	}
-
-	/* (非 Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		TimeZoneDetail other = (TimeZoneDetail) obj;
-		if (chargeName == null) {
-			if (other.chargeName != null)
-				return false;
-		} else if (!chargeName.equals(other.chargeName))
-			return false;
-		if (housingName == null) {
-			if (other.housingName != null)
-				return false;
-		} else if (!housingName.equals(other.housingName))
-			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (remarks == null) {
-			if (other.remarks != null)
-				return false;
-		} else if (!remarks.equals(other.remarks))
-			return false;
-		if (subGroupName == null) {
-			if (other.subGroupName != null)
-				return false;
-		} else if (!subGroupName.equals(other.subGroupName))
-			return false;
-		if (urgentContact == null) {
-			if (other.urgentContact != null)
-				return false;
-		} else if (!urgentContact.equals(other.urgentContact))
-			return false;
-		return true;
-	}
 
 	/* (非 Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "TimeZoneDetail [id=" + id + ", housingName=" + housingName
-				+ ", subGroupName=" + subGroupName + ", urgentContact="
-				+ urgentContact + ", chargeName=" + chargeName + ", remarks="
-				+ remarks + "]";
+		return "TimeZoneDetail [no=" + no + ", bukkenName=" + bukkenName
+				+ ", subGroupName=" + subGroupName + ", doDate=" + doDate
+				+ ", startTime=" + startTime + ", endTime=" + endTime
+				+ ", priority=" + priority + "]";
 	}
+	
+	
+	
 }

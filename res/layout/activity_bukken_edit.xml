@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@color/app_color"
     android:orientation="vertical"
     tools:context="jp.gr.uchiwa.blackout.activity.BukkenEditActivity" >
 
@@ -47,7 +48,7 @@
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <EditText
-                    android:id="@+id/subGroup"
+                    android:id="@+id/subGroupName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -72,7 +73,7 @@
                 </LinearLayout>
 
                 <EditText
-                    android:id="@+id/contactAddress"
+                    android:id="@+id/urgentContact"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -92,7 +93,7 @@
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <EditText
-                    android:id="@+id/contactPerson"
+                    android:id="@+id/chargeText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="10" />
@@ -100,10 +101,22 @@
         </TableLayout>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/bukkenUpdate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="更新" />
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/bukkenUpdate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="更新" />
+
+        <Button
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="キャンセル" />
+
+    </LinearLayout>
 
 </LinearLayout>
