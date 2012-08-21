@@ -1,5 +1,6 @@
 package jp.gr.uchiwa.blackout.activity;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import jp.gr.uchiwa.blackout.R;
@@ -9,6 +10,8 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.widget.TextView;
@@ -80,8 +83,9 @@ public class BukkenDetailActivity extends Activity {
 								"U","V","W","X","Y","Z"};
 
 		// 九州電力ホームページ［TOP］URL
-		String topScheme		= "http://www.kyuden.co.jp/";
+		final String topScheme		= "http://www.kyuden.co.jp/";
 		// 九州電力ホームページ［計画停電月間カレンダー］URL
+		final String calendarScheme;
 		String calendarScheme1	= "http://www2.kyuden.co.jp/kt_search/index.php/blackout_group/calendar/";
 		String calendarScheme2	= "/0";
 		StringBuilder sb = new StringBuilder();
@@ -92,7 +96,6 @@ public class BukkenDetailActivity extends Activity {
 
 		String alp = subGroup.getText().toString().substring(0, 1);
 		for (int i = 0; i < alphabet.length; i++) {
-			Log.d(alphabet[i].toString(), "");
 			if (alphabet[i].toString().equals(alp)) {
 				subAlphabet = i;
 				break;
@@ -104,13 +107,37 @@ public class BukkenDetailActivity extends Activity {
 		sb.append(String.valueOf(subNumber));
 		sb.append(String.valueOf(subAlphabet));
 		sb.append(calendarScheme2);
+		calendarScheme = sb.toString();
 		
 		Pattern topPattern 		= Pattern.compile(linkHomePage.getText().toString());		
 		Pattern calendarPattern	= Pattern.compile(subGroup.getText().toString());		
 
+		Linkify.TransformFilter topFilter = new Linkify.TransformFilter() {			
+			public String transformUrl(Matcher match, String url) {
+				return topScheme;
+			}
+		};
+		Linkify.TransformFilter calendarFilter = new Linkify.TransformFilter() {			
+			public String transformUrl(Matcher match, String url) {
+				return calendarScheme;
+			}
+		};
+		
+		Linkify.MatchFilter topMatchFilter = new Linkify.MatchFilter() {
+			public boolean acceptMatch(CharSequence s, int start, int end) {
+				return true;
+			}
+		};
+		Linkify.MatchFilter calendarMatchFilter = new Linkify.MatchFilter() {
+			public boolean acceptMatch(CharSequence s, int start, int end) {
+				return true;
+			}
+		};
+
 		// リンク作成
-		Linkify.addLinks(linkHomePage, topPattern, topScheme);
-		Linkify.addLinks(subGroup, calendarPattern, sb.toString());
+		Linkify.addLinks(linkHomePage, topPattern, topScheme, topMatchFilter, topFilter);
+		Linkify.addLinks(subGroup, calendarPattern, calendarScheme, calendarMatchFilter, calendarFilter);
+		
 	}
 	
 }
