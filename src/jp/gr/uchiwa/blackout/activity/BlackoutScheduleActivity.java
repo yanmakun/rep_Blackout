@@ -387,8 +387,7 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
         ExpandableListAdapter adapter = new SimpleExpandableListAdapter(
                 this,
                 parentList,
-                R.layout.custom_expandable_list_item_1,
-                //android.R.layout.simple_expandable_list_item_1,
+                android.R.layout.simple_expandable_list_item_1,
                 new String []{KEY_TIMEZONE},
                 new int []{android.R.id.text1},
                 allChildList,
@@ -403,7 +402,6 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
         	Toast.makeText(this, "対象物件の計画停電はありません。",Toast.LENGTH_SHORT).show();
         }
         
-        exListView1.setAdapter(adapter);
-  
+        exListView1.setAdapter(adapter);  
 	}
 }
