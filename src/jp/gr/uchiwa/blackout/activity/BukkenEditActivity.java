@@ -64,14 +64,13 @@ public class BukkenEditActivity extends Activity {
 					return;
 				}
 				service.editBukken(data);
-				final Intent intent = new Intent(BukkenEditActivity.this, BukkenListActivity.class);
-				startActivity(intent);
+				setResult(RESULT_OK);
+				finish();
 			}
 		});
 		cancel.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				final Intent intent = new Intent(BukkenEditActivity.this, BukkenListActivity.class);
-				startActivity(intent);
+				finish();
 			}
 		});
 	}

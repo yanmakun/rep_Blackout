@@ -25,6 +25,8 @@ import android.widget.TextView;
 
 public class BukkenListActivity extends Activity {
 
+    private static final int REQUEST_CODE_DUMMY = 0;
+    
 	private Button                        moveToBukkenEdit;
 	private Button                        moveToBlackoutSchedule;
 	private ListView                      bukkenList;
@@ -40,6 +42,14 @@ public class BukkenListActivity extends Activity {
 		addEventHandler();
 		bindData();
 		moveToBukkenEditWhenBukkenNothing();
+	}
+	
+	@Override
+	protected void onActivityResult(int pRequestCode, int pResultCode, Intent pData) {
+	    if (pResultCode != RESULT_OK) {
+	        return;
+	    }
+	    bindData();
 	}
 
 	private void findView() {
@@ -73,7 +83,7 @@ public class BukkenListActivity extends Activity {
 		final BukkenListService service = new BukkenListService(this);
 		if ("編集".equals(title)) {
 			intent.putExtra(Bukken.COL_NO.getName(), no);
-			startActivity(intent);
+			startActivityForResult(intent, REQUEST_CODE_DUMMY);
 		} else if ("削除".equals(title)) {
 			service.deleteBukken(no);
 			adapter.remove(data.get(Bukken.COL_BUKKEN_NAME.getName()) + "／" + data.get(Bukken.COL_SUB_GROUP_NAME.getName()));
@@ -87,7 +97,7 @@ public class BukkenListActivity extends Activity {
 			public void onClick(View v) {
 				final Intent intent = new Intent(BukkenListActivity.this, BukkenEditActivity.class);
 				intent.putExtra(Bukken.COL_NO.getName(), 0);
-				startActivity(intent);
+				startActivityForResult(intent, REQUEST_CODE_DUMMY);
 			}
 		});
 		moveToBlackoutSchedule.setOnClickListener(new View.OnClickListener() {
@@ -121,7 +131,7 @@ public class BukkenListActivity extends Activity {
 			public void onClick(DialogInterface dialog, int which) {
 				final Intent intent = new Intent(BukkenListActivity.this, BukkenEditActivity.class);
 				intent.putExtra(Bukken.COL_NO.getName(), 0);
-				startActivity(intent);
+				startActivityForResult(intent, REQUEST_CODE_DUMMY);
 			}
 		});
 		message.setNegativeButton("閉じる", new DialogInterface.OnClickListener() {
