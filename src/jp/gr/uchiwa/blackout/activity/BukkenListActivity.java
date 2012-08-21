@@ -88,6 +88,7 @@ public class BukkenListActivity extends Activity {
 			service.deleteBukken(no);
 			adapter.remove(data.get(Bukken.COL_BUKKEN_NAME.getName()) + "／" + data.get(Bukken.COL_SUB_GROUP_NAME.getName()));
 			dataList.remove(info.position - 1);
+			adapter.notifyDataSetChanged();
 		}
 		return true;
 	}

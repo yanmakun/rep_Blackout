@@ -13,7 +13,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 /**
  * @author jabaraster
@@ -86,8 +85,6 @@ public class Db {
         if (pCursor.getCount() == 0) {
             return Collections.emptyList();
         }
-
-        Log.d(Db.class.getSimpleName(), String.valueOf(pCursor.getPosition()));
 
         return new Iterable<Cursor>() {
 

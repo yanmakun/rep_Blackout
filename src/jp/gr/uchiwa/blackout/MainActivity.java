@@ -41,6 +41,8 @@ public class MainActivity extends ListActivity {
                 "スケジュール取得中..." + (task.isFirst() ? "(初回起動!)" : "") //  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
                 });
         setListAdapter(ada);
+
+        getListView().setBackgroundResource(jp.gr.uchiwa.blackout.R.color.app_color);
     }
 
     private void loadDbData() {
