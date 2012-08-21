@@ -9,6 +9,8 @@ import jp.gr.uchiwa.blackout.R;
 import jp.gr.uchiwa.blackout.service.BukkenListService;
 import jp.gr.uchiwa.blackout.service.Db.Bukken;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -37,6 +39,7 @@ public class BukkenListActivity extends Activity {
 		customizeView();
 		addEventHandler();
 		bindData();
+		moveToBukkenEditWhenBukkenNothing();
 	}
 
 	private void findView() {
@@ -58,7 +61,7 @@ public class BukkenListActivity extends Activity {
 		menu.setHeaderTitle("操作");
 		menu.add("編集");
 		menu.add("削除");
-		menu.add("キャンセル");
+		menu.add("閉じる");
 	}
 
 	public boolean onContextItemSelected(MenuItem item) {
@@ -105,5 +108,27 @@ public class BukkenListActivity extends Activity {
 		}
 		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list);
 		bukkenList.setAdapter(adapter);
+	}
+
+	private void moveToBukkenEditWhenBukkenNothing() {
+		if (adapter.getCount() != 0) {
+			return;
+		}
+		final AlertDialog.Builder message = new AlertDialog.Builder(this);
+		message.setTitle("物件情報チェック");
+		message.setMessage("物件情報が未登録です。");
+		message.setPositiveButton("登録する", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				final Intent intent = new Intent(BukkenListActivity.this, BukkenEditActivity.class);
+				intent.putExtra(Bukken.COL_NO.getName(), 0);
+				startActivity(intent);
+			}
+		});
+		message.setNegativeButton("閉じる", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				// 何もしない。
+			}
+		});
+		message.show();
 	}
 }
