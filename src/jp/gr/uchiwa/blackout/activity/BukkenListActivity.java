@@ -9,6 +9,8 @@ import jp.gr.uchiwa.blackout.R;
 import jp.gr.uchiwa.blackout.service.BukkenListService;
 import jp.gr.uchiwa.blackout.service.Db.Bukken;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -23,6 +25,8 @@ import android.widget.TextView;
 
 public class BukkenListActivity extends Activity {
 
+    private static final int REQUEST_CODE_DUMMY = 0;
+    
 	private Button                        moveToBukkenEdit;
 	private Button                        moveToBlackoutSchedule;
 	private ListView                      bukkenList;
@@ -37,6 +41,15 @@ public class BukkenListActivity extends Activity {
 		customizeView();
 		addEventHandler();
 		bindData();
+		moveToBukkenEditWhenBukkenNothing();
+	}
+	
+	@Override
+	protected void onActivityResult(int pRequestCode, int pResultCode, Intent pData) {
+	    if (pResultCode != RESULT_OK) {
+	        return;
+	    }
+	    bindData();
 	}
 
 	private void findView() {
@@ -48,6 +61,7 @@ public class BukkenListActivity extends Activity {
 	private void customizeView() {
 		final TextView bukkenListHeader = new TextView(this);
 		bukkenListHeader.setText("物件名／サブグループ");
+		bukkenListHeader.setTextSize(16);
 		bukkenList.addHeaderView(bukkenListHeader);
 		registerForContextMenu(bukkenList);
 	}
@@ -57,22 +71,23 @@ public class BukkenListActivity extends Activity {
 		menu.setHeaderTitle("操作");
 		menu.add("編集");
 		menu.add("削除");
+		menu.add("閉じる");
 	}
 
 	public boolean onContextItemSelected(MenuItem item) {
 		final AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		final String title = (String) item.getTitle();
 		final Intent intent = new Intent(BukkenListActivity.this, BukkenEditActivity.class);
-		final Map<String, String> data = dataList.get(info.position);
+		final Map<String, String> data = dataList.get(info.position - 1);
 		final int no = Integer.parseInt(data.get(Bukken.COL_NO.getName()));
 		final BukkenListService service = new BukkenListService(this);
 		if ("編集".equals(title)) {
 			intent.putExtra(Bukken.COL_NO.getName(), no);
-			startActivity(intent);
-		} else {
+			startActivityForResult(intent, REQUEST_CODE_DUMMY);
+		} else if ("削除".equals(title)) {
 			service.deleteBukken(no);
-			bukkenList.removeViewAt(info.position);
-			dataList.remove(info.position);
+			adapter.remove(data.get(Bukken.COL_BUKKEN_NAME.getName()) + "／" + data.get(Bukken.COL_SUB_GROUP_NAME.getName()));
+			dataList.remove(info.position - 1);
 		}
 		return true;
 	}
@@ -82,7 +97,7 @@ public class BukkenListActivity extends Activity {
 			public void onClick(View v) {
 				final Intent intent = new Intent(BukkenListActivity.this, BukkenEditActivity.class);
 				intent.putExtra(Bukken.COL_NO.getName(), 0);
-				startActivity(intent);
+				startActivityForResult(intent, REQUEST_CODE_DUMMY);
 			}
 		});
 		moveToBlackoutSchedule.setOnClickListener(new View.OnClickListener() {
@@ -103,5 +118,27 @@ public class BukkenListActivity extends Activity {
 		}
 		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list);
 		bukkenList.setAdapter(adapter);
+	}
+
+	private void moveToBukkenEditWhenBukkenNothing() {
+		if (adapter.getCount() != 0) {
+			return;
+		}
+		final AlertDialog.Builder message = new AlertDialog.Builder(this);
+		message.setTitle("物件情報チェック");
+		message.setMessage("物件情報が未登録です。");
+		message.setPositiveButton("登録する", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				final Intent intent = new Intent(BukkenListActivity.this, BukkenEditActivity.class);
+				intent.putExtra(Bukken.COL_NO.getName(), 0);
+				startActivityForResult(intent, REQUEST_CODE_DUMMY);
+			}
+		});
+		message.setNegativeButton("閉じる", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				// 何もしない。
+			}
+		});
+		message.show();
 	}
 }
