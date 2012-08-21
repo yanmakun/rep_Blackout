@@ -49,7 +49,7 @@ public class BukkenDetailActivityDriver extends Activity {
 		setData();
     }
     
-    private void setData() {
+    public void setData() {
     	//初期投入サンプルデータ	  
     	String[][] datas = new String[][]{  
     			{"1", "test1", "A10", "00000000000", "担当者A", "あああ"},  

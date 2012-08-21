@@ -13,6 +13,8 @@ import java.util.Map;
 import jp.gr.uchiwa.blackout.model.TimeZone;
 import jp.gr.uchiwa.blackout.model.TimeZoneDetail;
 import jp.gr.uchiwa.blackout.service.BlackoutScheduleService;
+import jp.gr.uchiwa.blackout.service.BukkenListService;
+import jp.gr.uchiwa.blackout.service.Db;
 import jp.gr.uchiwa.blackout.service.IntentKey;
 import jp.gr.uchiwa.blackout.service.ScheduleService;
 import jp.gr.uchiwa.blackout.service.ScheduleService.IRefreshTask;
@@ -20,7 +22,9 @@ import jp.gr.uchiwa.blackout.MainActivity;
 import jp.gr.uchiwa.blackout.R;
 import jp.gr.uchiwa.blackout.R.id;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -29,8 +33,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
+import android.widget.Button;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.Toast;
 
@@ -43,58 +49,91 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
 	
 	// 時間帯リストキー
 	/** 物件Noキー */
-    public static final String KEY_BUKKEN_NO = "BUKKEN_NO";
+    public static final String KEY_BUKKEN_NO 		= "BUKKEN_NO";
     /** 物件名キー */
-	public static final String KEY_BUKKEN_NAME= "BUKKEN_NAME";
+	public static final String KEY_BUKKEN_NAME	= "BUKKEN_NAME";
 	/** 時間帯キー */
-    public static final String KEY_TIMEZONE = "TIMEZONE";
+    public static final String KEY_TIMEZONE 		= "TIMEZONE";
     /** サブグループキー */
-    public static final String KEY_SUBGROUP_NAME = "SUBGROUPNAME";
+    public static final String KEY_SUBGROUP_NAME 	= "SUBGROUPNAME";
     /** 優先度キー */
-    public static final String KEY_PRIORITY = "PRIORITY";
+    public static final String KEY_PRIORITY 		= "PRIORITY";
     /** 優先度 + サブグループキー */
     public static final String KEY_PRIORITY_AND_SUBGROUP = "PRIORITY_AND_SUBGROUP";
 
     /** メニューID1 */
-    private static final int MENU_ID_MENU1 = (Menu.FIRST + 1);
+    private static final int MENU_ID_MENU1 		= (Menu.FIRST + 1);
     /** メニューID2 */
-    private static final int MENU_ID_MENU2 = (Menu.FIRST + 2);
+    private static final int MENU_ID_MENU2 		= (Menu.FIRST + 2);
+    
+    // ホームウィジェット
+    private DatePicker			datePicker;
+    private ExpandableListView exListView1;
     
     // 日付
     private String picDate;
-    SimpleDateFormat sf;
+    // 日付形式
+    private SimpleDateFormat sf;
     
-    ExpandableListView exListView1;
-    List<Map<String, Object>> parentList;
-    List<List<Map<String, Object>>> allChildList;
+    // スケジュール用リスト親子
+    private List<Map<String, Object>> parentList= new ArrayList<Map<String,Object>>();;
+    private List<List<Map<String, Object>>> allChildList= new ArrayList<List<Map<String,Object>>>();;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        // 九電から最新の計画停電データを取得
-        new ScheduleService(this).refreshInBackground();
-
-        // 画面設定
         setContentView(R.layout.activity_blackout_schedule);
-        DatePicker datePicker = (DatePicker) findViewById(id.datePicker1); // 日付選択ボックス
-        exListView1 = (ExpandableListView) findViewById(id.expandableListView1); // 時間帯リスト
-
+        if(!isExsitsBukkenList()){
+        	return;
+        }
+        findView();
+        addEventHandler();
+        setDatePicker();
+        updateTimeZoneList();
+    }
+    
+    /**
+     * 初期処理
+     */
+    private boolean isExsitsBukkenList(){
+    	// 物件マスタが存在しない場合
+    	BukkenListService bukkenListService = new BukkenListService(this);
+    	if(bukkenListService.getBukkenList().size() < 1){
+    		Log.v("moveActivity","BlackoutSchedule→BukkenList");
+        	// インテントへのインスタンス生成 
+        	Intent intent = new Intent(this,BukkenListActivity.class);
+            // 物件詳細画面へ移動
+            startActivity(intent);
+            return false;
+    	}
+    	
+    	return true;
+    }
+    
+    /**
+     * 日付選択初期設定
+     */
+    private void setDatePicker(){
         // 日付選択ボックスに現在日付の設定
         Calendar c = Calendar.getInstance();
         datePicker.init(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH),this);
         
         // 日付選択ボックス用日付形式
         sf = new SimpleDateFormat("yyyy/MM/dd");
-        setPicDate(sf.format(c.getTime()));
-        
-        // 時間帯リスト用ノード
-        parentList = new ArrayList<Map<String,Object>>(); // 親ノードリスト
-        allChildList = new ArrayList<List<Map<String,Object>>>(); // 子ノードリスト        
-
-        // 時間帯リストを更新
-        updateTimeZoneList();
-
+        setPicDate(sf.format(c.getTime()));  	
+    }
+    /**
+     * Viewの設定
+     */
+	private void findView() {
+		datePicker = (DatePicker) findViewById(id.datePicker1); // 日付選択ボックス
+		exListView1 = (ExpandableListView) findViewById(id.expandableListView1); // 時間帯リスト
+		
+	}
+	/**
+	 * リスナーの設定
+	 */
+	private void addEventHandler() {
         // 時間帯リストリスナー
         exListView1.setOnChildClickListener(new ExpandableListView.OnChildClickListener(){
 
@@ -108,7 +147,7 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
                     int childPosition,
                     long id)
             {
-                // まずはAdapterを取得
+                // Adapterを取得
                 ExpandableListAdapter adapter = parent.getExpandableListAdapter();
 
                 // Adapterから子のデータMapを取得
@@ -123,16 +162,15 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
 
                 return false;
             }
-        });
-    }
-    
+        });		
+	}
     /**
      * メニューボタンの作成
      */
     public boolean onCreateOptionsMenu(Menu menu) {
 		boolean ret = super.onCreateOptionsMenu(menu);
 		menu.add(0 , Menu.FIRST+1 , Menu.NONE ,"対象物件一覧");
-		//menu.add(0 , Menu.FIRST+2 , Menu.NONE ,"メニュー1");
+		menu.add(0 , Menu.FIRST+2 , Menu.NONE ,"データ取得");
 
 		return ret;
     }
@@ -150,22 +188,22 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean ret = true;
+        Intent intent = new Intent();
         switch (item.getItemId()) {
 	        default:
 	            ret = super.onOptionsItemSelected(item);
 	            break;
 	        case MENU_ID_MENU1:
 	        	// インテントへのインスタンス生成 
-	        	Intent intent = new Intent(this,BukkenListActivity.class);
-	            // 物件詳細画面へ渡す物件No.を設定
-	            //setIntent(intent.putExtra(IntentKey.BUKKEN_NO, Integer.valueOf(no)));
+	        	intent = new Intent(this,BukkenListActivity.class);
 	            // 物件詳細画面へ移動
 	            startActivity(intent);        	
-	        	
-	            //ret = true;
+
 	            break;
-	        case MENU_ID_MENU2:
-	            //ret = true;
+	        case MENU_ID_MENU2:	        	
+	        	// 九電データ取得
+	        	intent = new Intent(this,MainActivity.class);
+	        	startActivity(intent); 
 	            break;
         }
         return ret;
@@ -349,7 +387,8 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
         ExpandableListAdapter adapter = new SimpleExpandableListAdapter(
                 this,
                 parentList,
-                android.R.layout.simple_expandable_list_item_1,
+                R.layout.custom_expandable_list_item_1,
+                //android.R.layout.simple_expandable_list_item_1,
                 new String []{KEY_TIMEZONE},
                 new int []{android.R.id.text1},
                 allChildList,
