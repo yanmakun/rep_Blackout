@@ -42,7 +42,7 @@ public class MainActivity extends ListActivity {
                 });
         setListAdapter(ada);
 
-        getListView().setBackgroundResource(jp.gr.uchiwa.blackout.R.color.app_color);
+        getListView().setBackgroundResource(jp.gr.uchiwa.blackout.R.drawable.app_icon_background);
     }
 
     private void loadDbData() {

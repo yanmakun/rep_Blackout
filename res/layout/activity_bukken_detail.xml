@@ -4,7 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    tools:context="jp.gr.uchiwa.blackout.activity.BukkenEditActivity" android:background="@color/app_color">
+    tools:context="jp.gr.uchiwa.blackout.activity.BukkenEditActivity" android:background="@drawable/app_icon_background">
 
     <LinearLayout
         android:layout_width="fill_parent"
