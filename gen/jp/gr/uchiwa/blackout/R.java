@@ -71,7 +71,10 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f070000;
-        public static final int csv_url=0x7f070004;
+        public static final int auto_refresh_loop_interval_second=0x7f070004;
+        /**  30分毎に停電スケジュールの変更を確認する 
+         */
+        public static final int csv_url=0x7f070005;
         public static final int hello_world=0x7f070001;
         public static final int menu_settings=0x7f070002;
         public static final int title_activity_main=0x7f070003;

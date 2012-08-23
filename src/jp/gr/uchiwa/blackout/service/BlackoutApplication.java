@@ -32,7 +32,6 @@ public class BlackoutApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
         setupWorker();
         setupExceptionOperation();
     }
@@ -45,6 +44,7 @@ public class BlackoutApplication extends Application {
         if (this.worker != null) {
             this.worker.shutdownNow();
         }
+        BackgroundService.cancelTimers();
         super.onTerminate();
     }
 

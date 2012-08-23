@@ -18,9 +18,11 @@ import jp.gr.uchiwa.blackout.service.BlackoutScheduleService;
 import jp.gr.uchiwa.blackout.service.BukkenListService;
 import jp.gr.uchiwa.blackout.service.IntentKey;
 import jp.gr.uchiwa.blackout.service.ScheduleService;
+import jp.gr.uchiwa.blackout.service.ScheduleService.IHandler;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -67,30 +69,57 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
     private SimpleDateFormat sf;
     
     // スケジュール用リスト親子
-    private List<Map<String, Object>> parentList= new ArrayList<Map<String,Object>>();;
-    private List<List<Map<String, Object>>> allChildList= new ArrayList<List<Map<String,Object>>>();;
+    private List<Map<String, Object>> parentList= new ArrayList<Map<String,Object>>();
+    private List<List<Map<String, Object>>> allChildList= new ArrayList<List<Map<String,Object>>>();
 
+    private final Handler handler = new Handler();
+    private ScheduleService scheduleService;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
         // 九電計画停電スケジュールの取得
-        new ScheduleService(this).refreshInBackground();
+        this.scheduleService = new ScheduleService(this);
         
         setContentView(R.layout.activity_blackout_schedule);
-        if(!isExsitsBukkenList()){
-        	return;
-        }
         findView();
         addEventHandler();
         setDatePicker();
         updateTimeZoneList();
+        
+        // この処理は全インスタンス変数が整ってからでないと呼び出してはいけない.
+        // 物件リスト画面がfinish()にて自分を閉じると、
+        // 自分の画面に戻ってくるわけだが、その際インスタンス変数が不完全な状態だと
+        // 誤動作につながる（finish()で戻ってきた場合、Activityオブジェクトは使い回されるのが普通）
+        moveBukkenListIfBukkenEmpty();
+        
+        // CSVデータの自動更新ループを開始する.
+        this.scheduleService.startAutoRefreshLoop(Long.parseLong(getResources().getString(R.string.auto_refresh_loop_interval_second)), new IHandler() {
+            
+            @SuppressWarnings("synthetic-access")
+            public void handle() {
+                BlackoutScheduleActivity.this.handler.post(new Runnable() {
+                    
+                    public void run() {
+                        Toast.makeText(BlackoutScheduleActivity.this, "停電スケジュールが更新されました！", Toast.LENGTH_LONG).show(); //$NON-NLS-1$
+                        updateTimeZoneList();
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        this.scheduleService.stopAutoRefreshLoop();
+        super.onDestroy();
     }
     
     /**
      * 初期処理
      */
-    private boolean isExsitsBukkenList(){
+    private boolean moveBukkenListIfBukkenEmpty(){
     	// 物件マスタが存在しない場合
     	BukkenListService bukkenListService = new BukkenListService(this);
     	if(bukkenListService.getBukkenList().size() < 1){
@@ -328,7 +357,7 @@ public class BlackoutScheduleActivity extends Activity implements OnDateChangedL
         // 物件詳細画面へ移動
         startActivity(intent);
     }
-     
+    
 	/**
 	 * 表示スケジュールを更新
 	 */

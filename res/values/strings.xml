@@ -4,6 +4,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="auto_refresh_loop_interval_second">1800</string><!-- 30分毎に停電スケジュールの変更を確認する -->
     
     <string name="csv_url">http://jabara-tools.herokuapp.com/rest/blackout/schedule.csv</string>
     <!-- <string name="csv_url">http://10.0.2.2:8081/rest/blackout/schedule.csv</string> -->

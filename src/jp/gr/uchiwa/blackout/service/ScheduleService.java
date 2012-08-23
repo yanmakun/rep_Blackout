@@ -7,9 +7,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import jp.gr.uchiwa.blackout.R;
 import jp.gr.uchiwa.blackout.service.Db.Schedule;
@@ -32,6 +35,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 /**
  * @author jabaraster
@@ -41,6 +45,8 @@ public class ScheduleService {
     private static IRefreshTask _refreshing;
 
     private final Context       context;
+
+    private transient Timer     loopTimer;
 
     /**
      * @param pContext
@@ -93,7 +99,58 @@ public class ScheduleService {
         }
     }
 
-    private void refreshIfModifiedCore(final Date pLastModified) {
+    /**
+     * バックグラウンドでの自動更新処理ループを開始します. <br>
+     * このメソッドを呼び出したら、必ず{@link #stopAutoRefreshLoop()}にて終了させるようにして下さい. <br>
+     * 
+     * @param pDurationSeconds ループ間隔を秒で指定.
+     * @param pHandler 更新があった場合に呼び出される処理. <br>
+     *            メインスレッドとは異なるスレッドで実行されることに注意. <br>
+     */
+    public synchronized void startAutoRefreshLoop(final long pDurationSeconds, final IHandler pHandler) {
+        if (this.loopTimer != null) {
+            return;
+        }
+        this.loopTimer = BackgroundService.newTimer();
+        this.loopTimer.schedule(new TimerTask() {
+            @Override
+            @SuppressWarnings("synthetic-access")
+            public void run() {
+                final Db db = new Db(ScheduleService.this.context);
+                try {
+                    final Date lastModified = getDbLastModified(db);
+                    final RequestResult result = refreshIfModifiedCore(lastModified);
+
+                    Log.d(ScheduleService.class.getSimpleName(), "CSVチェック結果：" + String.valueOf(result)); //$NON-NLS-1$
+
+                    switch (result) {
+                    case FIRST_TIME:
+                    case MODIFIED:
+                        pHandler.handle();
+                        break;
+                    case NOT_MODIFIED:
+                        break; // 処理なし
+                    default:
+                        throw new UnsupportedOperationException();
+                    }
+                } finally {
+                    db.close();
+                }
+            }
+        }, 0, TimeUnit.SECONDS.toMillis(pDurationSeconds)/* 30分 */);
+    }
+
+    /**
+     * 
+     */
+    public synchronized void stopAutoRefreshLoop() {
+        if (this.loopTimer == null) {
+            return;
+        }
+        BackgroundService.releaseTimer(this.loopTimer);
+    }
+
+    private RequestResult refreshIfModifiedCore(final Date pLastModified) {
         final Db db = new Db(this.context);
 
         try {
@@ -119,10 +176,11 @@ public class ScheduleService {
 
             if (response == null) {
                 // サーバ側のファイルに変更が入っていないということなので、ここで処理終了.
-                return;
+                return RequestResult.NOT_MODIFIED;
             }
 
             parseAndInsert(db, response);
+            return pLastModified == null ? RequestResult.FIRST_TIME : RequestResult.MODIFIED;
 
         } catch (final ClientProtocolException e) {
             throw ExceptionUtil.rethrow(e);
@@ -205,11 +263,20 @@ public class ScheduleService {
     /**
      * @author jabaraster
      */
+    public interface IHandler {
+        /**
+         * 
+         */
+        void handle();
+    }
+
+    /**
+     * @author jabaraster
+     */
     public static interface IRefreshTask {
 
         /**
-         * @return 初回のアプリ起動時の最新化タスクの場合にtrue. <br>
-         *         まだDBに停電スケジュールが保存されていない場合にtrueとなります. <br>
+         * @return 初回リクエスト発行ならtrue.
          */
         boolean isFirst();
 
@@ -218,6 +285,28 @@ public class ScheduleService {
          * 他のスレッドで行われている処理が終わるまで次の処理が行えない場合に、このメソッドを呼び出して下さい. <br>
          */
         void join();
+    }
+
+    /**
+     * @author jabaraster
+     */
+    public enum RequestResult {
+        /**
+         * 
+         */
+        FIRST_TIME,
+
+        /**
+         * 
+         */
+        NOT_MODIFIED,
+
+        /**
+         * 
+         */
+        MODIFIED,
+
+        ;
     }
 
     private static class RefreshTaskImpl implements IRefreshTask {
@@ -249,7 +338,6 @@ public class ScheduleService {
                 throw new IllegalStateException(e.getCause());
             }
         }
-
     }
 
     private static class Response {
